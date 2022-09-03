@@ -1,0 +1,21 @@
+.selectFolderContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-items: center;
+}
+
+.selectFolderContainer > button {
+  width: fit-content;
+}
+
+.pathContainer {
+  display: flex;
+  gap: 10px;
+}
+
+.selectFolderPath {
+  background-color: gray;
+  padding: 2px 5px;
+  border-radius: 5px;
+}

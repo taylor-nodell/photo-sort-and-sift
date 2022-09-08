@@ -10,7 +10,7 @@ export default function App() {
     const listener = window.electron.ipcRenderer.on(
       'folder-selection',
       (args) => {
-        const path = args as any;
+        const path = args as string;
         if (path) {
           setSelectedFolder(path);
         }

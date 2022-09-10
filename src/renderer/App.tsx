@@ -7,17 +7,23 @@ export default function App() {
   const [selectedFolder, setSelectedFolder] = useState<string | undefined>();
 
   useEffect(() => {
-    const listener = window.electron.ipcRenderer.on(
-      'folder-selection',
-      (args) => {
-        const path = args as string;
-        if (path) {
-          setSelectedFolder(path);
+    if (window.electron) {
+      const listener = window.electron.ipcRenderer.on(
+        'folder-selection',
+        (args) => {
+          const path = args as string;
+          if (path) {
+            setSelectedFolder(path);
+          }
         }
-      }
-    );
-    return () =>
-      window.electron.ipcRenderer.removeListener('folder-selection', listener);
+      );
+      return () =>
+        window.electron.ipcRenderer.removeListener(
+          'folder-selection',
+          listener
+        );
+    }
+    return undefined;
   }, [selectedFolder]);
 
   return (

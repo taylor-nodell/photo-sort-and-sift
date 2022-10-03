@@ -1,0 +1,23 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100vh;
+  box-sizing: border-box;
+}
+
+.top {
+  display: flex;
+  flex-direction: row;
+  flex: 3;
+  border-bottom: 5px solid;
+  width: 100vw;
+}
+
+.bottom {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  border-top: 5px solid;
+  width: 100vw;
+}

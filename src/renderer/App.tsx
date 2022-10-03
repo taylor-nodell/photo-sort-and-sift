@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { MemoryRouter as Router, Routes, Route } from 'react-router-dom';
 import SelectFolder from './src/components/select-folder/SelectFolder';
 import './App.css';
 
@@ -84,20 +83,4 @@ export default function App() {
         ))}
     </div>
   );
-
-  // return (
-  //   <Router>
-  //     <Routes>
-  //       <Route
-  //         path="/"
-  //         element={
-  //           <SelectFolder
-  //             selectedFolder={selectedFolder}
-  //             onClearSelection={() => setSelectedFolder(undefined)}
-  //           />
-  //         }
-  //       />
-  //     </Routes>
-  //   </Router>
-  // );
 }

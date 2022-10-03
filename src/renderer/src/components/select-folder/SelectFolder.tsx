@@ -10,7 +10,9 @@ export default function SelectFolder({
   onClearSelection,
 }: Props) {
   const onSelectFolder = () => {
-    window.electron.ipcRenderer.sendMessage('folder-selection', []);
+    window.electron.ipcRenderer.sendMessage('folder-selection', [
+      'change-folder',
+    ]);
   };
   const onSelectAnother = () => {
     onSelectFolder();

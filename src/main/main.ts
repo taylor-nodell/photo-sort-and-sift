@@ -59,7 +59,7 @@ const sendImagesOnFolder = async (
             reject(error);
           }
           resolve({
-            name: imagePath,
+            id: imagePath,
             data,
           });
         }

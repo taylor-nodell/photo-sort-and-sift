@@ -1,37 +1,36 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
+import { useApp } from '../context/app-context';
 import SelectFolder from '../select-folder/SelectFolder';
 import './Layout.css';
 
 const Layout = () => {
-  const [selectedFolder, setSelectedFolder] = useState<string | undefined>();
+  const { images, ensureFolderPath, folderPath, loading } = useApp();
 
   useEffect(() => {
-    if (window.electron) {
-      const listener = window.electron.ipcRenderer.on(
-        'folder-selection',
-        (args) => {
-          const path = args as string;
-          if (path) {
-            setSelectedFolder(path);
-          }
-        }
-      );
-      return () =>
-        window.electron.ipcRenderer.removeListener(
-          'folder-selection',
-          listener
-        );
-    }
-    return undefined;
-  }, [selectedFolder]);
+    ensureFolderPath();
+  }, [ensureFolderPath]);
+
   return (
     <div className="main">
-      <div className="top">Top</div>
+      <div className="top">
+        {loading && 'Loading...'}
+        {!loading && images.length === 0 && 'No jpg images'}
+        {images
+          .filter((_, index) => index < 10)
+          .map((image) => (
+            <div key={image.id}>
+              <img
+                width={600}
+                height={600}
+                src={`data:image/jpeg;charset=utf-8;base64,${image.data}`}
+                alt={image.id}
+              />
+            </div>
+          ))}
+      </div>
       <div className="bottom">
-        <SelectFolder
-          selectedFolder={selectedFolder}
-          onClearSelection={() => setSelectedFolder(undefined)}
-        />
+        <SelectFolder />
+        <div>Path: {folderPath}</div>
       </div>
     </div>
   );

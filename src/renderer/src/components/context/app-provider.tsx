@@ -1,5 +1,5 @@
 import { FunctionComponent, PropsWithChildren, useState } from 'react';
-import { outDuplicatesById } from 'renderer/utils';
+import { outDuplicatesById } from '../../../utils'; // @todo - figure out why test-ubuntu latest can't find 'renderer/utils'
 // eslint-disable-next-line import/no-cycle
 import { AppContext } from './app-context';
 

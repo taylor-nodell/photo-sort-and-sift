@@ -8,6 +8,7 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
+import { readdir, readFile } from 'fs';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
@@ -23,7 +24,13 @@ class AppUpdater {
   }
 }
 
+interface ImageData {
+  id: string;
+  data: string; // Base64
+}
+
 let mainWindow: BrowserWindow | null = null;
+let selectedFolder: string | null = null;
 
 ipcMain.on('ipc-example', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
@@ -31,16 +38,64 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
-ipcMain.on('folder-selection', async (event) => {
+const sendImagesOnFolder = async (
+  event: Electron.IpcMainEvent,
+  folder: string
+) => {
+  const allImageFileNames = (await new Promise((resolve, reject) => {
+    readdir(folder, (err, files) => {
+      if (err) {
+        console.error(`error reading folder ${folder}, `, err);
+        reject(err);
+      }
+      const imageFiles = files.filter(
+        (file) => file.endsWith('.jpg') || file.endsWith('.JPG')
+      );
+      resolve(imageFiles);
+    });
+  })) as string[];
+
+  const getImageData = async (imagePath: string): Promise<ImageData> => {
+    return new Promise((resolve, reject) => {
+      readFile(
+        path.resolve(folder, imagePath),
+        { encoding: 'base64' },
+        (error, data) => {
+          if (error) {
+            console.error(`error reading image ${imagePath}, `, error);
+            reject(error);
+          }
+          resolve({
+            id: imagePath,
+            data,
+          });
+        }
+      );
+    });
+  };
+
+  const allImages = await Promise.all(allImageFileNames.map(getImageData));
+
+  event.reply('images', allImages);
+};
+
+ipcMain.on('folder-selection', async (event, args) => {
   if (!mainWindow) {
     console.error('folder-selection: no main window');
     return;
   }
-  const result = await dialog.showOpenDialog(mainWindow, {
-    properties: ['openDirectory'],
-  });
-  if (result.filePaths?.length) {
-    event.reply('folder-selection', result.filePaths[0]);
+  const changeFolder = args?.[0] === 'change-folder';
+  if (!selectedFolder || changeFolder) {
+    const result = await dialog.showOpenDialog(mainWindow, {
+      properties: ['openDirectory'],
+    });
+    if (result.filePaths?.length) {
+      [selectedFolder] = result.filePaths;
+    }
+  }
+  if (selectedFolder) {
+    event.reply('folder-selection', selectedFolder);
+    sendImagesOnFolder(event, selectedFolder);
   }
 });
 

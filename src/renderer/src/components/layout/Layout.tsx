@@ -8,11 +8,14 @@ const Layout = () => {
 
   useEffect(() => {
     ensureFolderPath();
-  }, [ensureFolderPath]);
+  });
 
   return (
     <div className="main">
-      <div className="top">
+      <div className="top" />
+      <div className="bottom">
+        <SelectFolder />
+        <div>Path: {folderPath}</div>
         {loading && 'Loading...'}
         {!loading && images.length === 0 && 'No jpg images'}
         {images
@@ -20,17 +23,13 @@ const Layout = () => {
           .map((image) => (
             <div key={image.id}>
               <img
-                width={600}
-                height={600}
+                width={200}
+                height={200}
                 src={`data:image/jpeg;charset=utf-8;base64,${image.data}`}
                 alt={image.id}
               />
             </div>
           ))}
-      </div>
-      <div className="bottom">
-        <SelectFolder />
-        <div>Path: {folderPath}</div>
       </div>
     </div>
   );

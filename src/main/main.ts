@@ -24,6 +24,11 @@ class AppUpdater {
   }
 }
 
+interface ImageData {
+  id: string;
+  data: string; // Base64
+}
+
 let mainWindow: BrowserWindow | null = null;
 let selectedFolder: string | null = null;
 
@@ -37,18 +42,20 @@ const sendImagesOnFolder = async (
   event: Electron.IpcMainEvent,
   folder: string
 ) => {
-  const allImageFiles = (await new Promise((resolve, reject) => {
+  const allImageFileNames = (await new Promise((resolve, reject) => {
     readdir(folder, (err, files) => {
       if (err) {
         console.error(`error reading folder ${folder}, `, err);
         reject(err);
       }
-      const imageFiles = files.filter((file) => file.endsWith('.jpg'));
+      const imageFiles = files.filter(
+        (file) => file.endsWith('.jpg') || file.endsWith('.JPG')
+      );
       resolve(imageFiles);
     });
-  })) as any[];
+  })) as string[];
 
-  const getImageData = async (imagePath: string) => {
+  const getImageData = async (imagePath: string): Promise<ImageData> => {
     return new Promise((resolve, reject) => {
       readFile(
         path.resolve(folder, imagePath),
@@ -67,7 +74,8 @@ const sendImagesOnFolder = async (
     });
   };
 
-  const allImages = await Promise.all(allImageFiles.map(getImageData));
+  const allImages = await Promise.all(allImageFileNames.map(getImageData));
+
   event.reply('images', allImages);
 };
 

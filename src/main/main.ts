@@ -16,6 +16,9 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
+// Native Dependency
+const sharp = require('sharp');
+
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';

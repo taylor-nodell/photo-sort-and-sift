@@ -16,6 +16,9 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
+// Native Dependency
+const sharp = require('sharp');
+
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';
@@ -197,6 +200,8 @@ app
   .whenReady()
   .then(() => {
     createWindow();
+    console.log(sharp);
+
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the
       // dock icon is clicked and there are no other windows open.

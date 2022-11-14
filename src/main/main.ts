@@ -9,16 +9,20 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 
-// Native Dependency
-import sharp from 'sharp';
-
-import { readdir, readFile, existsSync } from 'fs';
+import { existsSync } from 'fs';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
+import {
+  generateSharpBigPreview,
+  generateSharpThumbnail,
+  getJPGFileNames,
+  readSharpImageData,
+  resolveHtmlPath,
+} from './util';
+import { ImagePackage } from './types';
 
 class AppUpdater {
   constructor() {
@@ -26,11 +30,6 @@ class AppUpdater {
     autoUpdater.logger = log;
     autoUpdater.checkForUpdatesAndNotify();
   }
-}
-
-interface ImageData {
-  id: string;
-  data: string; // Base64
 }
 
 let mainWindow: BrowserWindow | null = null;
@@ -46,101 +45,59 @@ const sendImagesOnFolder = async (
   event: Electron.IpcMainEvent,
   folder: string
 ) => {
-  const allImageFileNames = (await new Promise((resolve, reject) => {
-    readdir(folder, (err, files) => {
-      if (err) {
-        console.error(`error reading folder ${folder}, `, err);
-        reject(err);
-      }
-      const imageFiles = files.filter(
-        (file) => file.endsWith('.jpg') || file.endsWith('.JPG')
-      );
-      resolve(imageFiles);
-    });
-  })) as string[];
+  const allJPGFileNames = await getJPGFileNames(folder);
 
-  const getImageData = async (imagePath: string): Promise<ImageData[]> => {
-    const compressedThumbnailPath = `${path.resolve(folder, imagePath)}_thumb`;
-    const compressedImagePath = `${path.resolve(folder, imagePath)}_compressed`;
+  const getImageData = async (imagePath: string): Promise<ImagePackage> => {
+    const compressedThumbnailPath = `${path.resolve(
+      folder,
+      imagePath
+    )}_thumbnail.jpg`;
+    const compressedBigPreviewImagePath = `${path.resolve(
+      folder,
+      imagePath
+    )}_bigPreview.jpg`;
+
+    // @todo - Optimization - batch the writing of the sharp images with Promise.all
 
     // Check if this compressedThumbnailPath already exists, if so, no need to create a new file, assume we've already resized with sharp
     if (!existsSync(compressedThumbnailPath)) {
-      await sharp(path.resolve(folder, imagePath))
-        .resize(200, 200, { fit: 'contain' })
-        .toFile(compressedThumbnailPath)
-        .then(() => {
-          // @todo - send a message back to client to describe loading state
-          console.log(`Writing thumbnail ${compressedThumbnailPath}`);
-        })
-        .catch((err) =>
-          console.error(
-            `Error writing thumbnail ${compressedThumbnailPath} with sharp: \n ${err}`
-          )
-        );
+      generateSharpThumbnail(
+        path.resolve(folder, imagePath),
+        compressedThumbnailPath
+      );
     }
 
-    if (!existsSync(compressedImagePath)) {
-      await sharp(path.resolve(folder, imagePath))
-        .resize(600, 400, { fit: 'contain' })
-        .toFile(compressedImagePath)
-        .then(() => {
-          // @todo - send a message back to client to describe loading state
-          console.log(`Writing ${compressedImagePath}`);
-        })
-        .catch((err) =>
-          console.error(
-            `Error writing image ${compressedImagePath} with sharp: \n ${err}`
-          )
-        );
+    if (!existsSync(compressedBigPreviewImagePath)) {
+      generateSharpBigPreview(
+        path.resolve(folder, imagePath),
+        compressedBigPreviewImagePath
+      );
     }
 
-    const thumbnailPromise: Promise<ImageData> = new Promise(
-      (resolve, reject) => {
-        readFile(
-          path.resolve(folder, compressedThumbnailPath),
-          { encoding: 'base64' },
-          (error, data) => {
-            if (error) {
-              console.error(`error reading image ${imagePath}, `, error);
-              reject(error);
-            }
-            resolve({
-              id: compressedThumbnailPath,
-              data,
-            });
-          }
-        );
-      }
+    // @todo - Optimization - batch the reading of the sharp image data with Promise.all
+    const thumbnailImageData = await readSharpImageData(
+      compressedThumbnailPath
+    );
+    const bigPreviewImageData = await readSharpImageData(
+      compressedBigPreviewImagePath
     );
 
-    const compressedImagePromise: Promise<ImageData> = new Promise(
-      (resolve, reject) => {
-        readFile(
-          path.resolve(folder, compressedImagePath),
-          { encoding: 'base64' },
-          (error, data) => {
-            if (error) {
-              console.error(`error reading image ${imagePath}, `, error);
-              reject(error);
-            }
-            resolve({
-              id: compressedImagePath,
-              data,
-            });
-          }
-        );
-      }
-    );
+    const imageDataPackage = {
+      id: imagePath, // @todo
+      jpegPath: path.resolve(folder, imagePath),
+      nefPath: undefined, // @todo
+      thumbnail: thumbnailImageData,
+      bigPreview: bigPreviewImageData,
+    };
 
-    return Promise.all([thumbnailPromise, compressedImagePromise]);
+    return imageDataPackage;
   };
 
-  const allImagesArrOfArr = await Promise.all(
-    allImageFileNames.map(getImageData)
-  );
-  const allImages = allImagesArrOfArr.flat();
+  const allImagePackages = await Promise.all([
+    ...allJPGFileNames.map(getImageData),
+  ]);
 
-  event.reply('processedImages', allImages);
+  event.reply('processedImages', allImagePackages);
 };
 
 ipcMain.on('folder-selection', async (event, args) => {

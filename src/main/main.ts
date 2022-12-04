@@ -16,13 +16,16 @@ import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
 import {
+  formatImagesToPackages,
   generateSharpBigPreview,
+  generateSharpImages,
   generateSharpThumbnail,
   getJPGFileNames,
   readSharpImageData,
+  readSharpImages,
   resolveHtmlPath,
 } from './util';
-import { ImagePackage } from './types';
+import { GeneratedFileNameEnding, ImagePackage } from './types';
 
 class AppUpdater {
   constructor() {
@@ -45,54 +48,58 @@ const sendImagesOnFolder = async (
   event: Electron.IpcMainEvent,
   folder: string
 ) => {
+  // Get the paths in the folder
   const allJPGFileNames = await getJPGFileNames(folder);
+  const allJPGFullFilePaths = allJPGFileNames
+    .filter(
+      // Filter out any file path names that look like we already generated them with sharp, @todo - is there a better way?
+      (jpgFilePathName) =>
+        !jpgFilePathName.endsWith(GeneratedFileNameEnding.THUMBNAIL) &&
+        !jpgFilePathName.endsWith(GeneratedFileNameEnding.BIG_PREVIEW)
+    )
+    .map((jpgFileName) => path.resolve(folder, jpgFileName));
+  console.log('allJPGFullFilePaths: \n', allJPGFullFilePaths);
+
+  // Generate Sharp Images
+  const sharpImageData = await Promise.all(
+    generateSharpImages(allJPGFullFilePaths)
+  );
+
+  // Read the sharp images that we just generated
+  const unpackagedImages = await Promise.all(readSharpImages(sharpImageData));
+  console.log(
+    'unpackaged ',
+    unpackagedImages.map((u) => {
+      return {
+        originalPathName: u.originalPathName,
+        sharpPathName: u.sharpPathName,
+        type: u.type,
+      };
+    })
+  );
+
+  // Package these images in a format that will allow us to read back the original jpg and nef paths
+  const packagedImages = formatImagesToPackages(unpackagedImages);
+  console.log('packaged ', packagedImages);
 
   const getImageData = async (imagePath: string): Promise<ImagePackage> => {
-    const compressedThumbnailPath = `${path.resolve(
-      folder,
-      imagePath
-    )}_thumbnail.jpg`;
-    const compressedBigPreviewImagePath = `${path.resolve(
-      folder,
-      imagePath
-    )}_bigPreview.jpg`;
-
-    // @todo - Optimization - batch the writing of the sharp images with Promise.all
-
-    // Check if this compressedThumbnailPath already exists, if so, no need to create a new file, assume we've already resized with sharp
-    if (!existsSync(compressedThumbnailPath)) {
-      generateSharpThumbnail(
-        path.resolve(folder, imagePath),
-        compressedThumbnailPath
-      );
-    }
-
-    if (!existsSync(compressedBigPreviewImagePath)) {
-      generateSharpBigPreview(
-        path.resolve(folder, imagePath),
-        compressedBigPreviewImagePath
-      );
-    }
-
-    // @todo - Optimization - batch the reading of the sharp image data with Promise.all
-    const thumbnailImageData = await readSharpImageData(
-      compressedThumbnailPath
-    );
-    const bigPreviewImageData = await readSharpImageData(
-      compressedBigPreviewImagePath
-    );
-
-    const imageDataPackage = {
-      id: imagePath, // @todo
-      jpegPath: path.resolve(folder, imagePath),
-      nefPath: undefined, // @todo
-      thumbnail: thumbnailImageData,
-      bigPreview: bigPreviewImageData,
-    };
-
+    // const imageDataPackage = {
+    //   id: imagePath, // @todo
+    //   jpegPath: path.resolve(folder, imagePath),
+    //   nefPath: undefined, // @todo
+    //   // @todo - the packaged images only have thumbnail or bigPreview, not both
+    //   thumbnail: packagedImages[imagePath].data,
+    //   bigPreview: bigPreviewImageData,
+    // };
+    return {};
     return imageDataPackage;
   };
 
+  // START HERE: Figure out how to take the sharp images in the folder and combine the thumbnail and preview images into one "ImagePackage", send that as an array of ImagePackages out to FE
+  // Additional Issue:
+  // Iterating over the file allJPGFileNames and getting the image data only gets the images we just generated
+  // Not ones we may have generated previously
+  // Need to read images via allJPGFileNames not generated SharpOutput
   const allImagePackages = await Promise.all([
     ...allJPGFileNames.map(getImageData),
   ]);

@@ -8,7 +8,7 @@ export interface ImageData {
   data: string; // Base64
 }
 
-interface ImagePackage {
+export interface ImagePackage {
   id: string;
   jpegPath: string;
   nefPath?: string;

@@ -113,11 +113,33 @@ export const generateSharpImages = (
     if (!existsSync(thumbnailPath)) {
       sharpPromises.push(generateSharpThumbnail(jpgFilePath, thumbnailPath));
     } else {
-      // @todo - handle already having generated these sharp images, we need to return a promise here, or handle reading images we didn't generate this iteration
+      console.log('already exists: ', thumbnailPath);
+      const existingImageData = readSharpImageData({
+        originalFilePath: jpgFilePath,
+        sharpFilePath: thumbnailPath,
+        type: ImageType.THUMBNAIL,
+      }).then((output) => ({
+        originalFilePath: jpgFilePath,
+        sharpFilePath: thumbnailPath,
+        ...output,
+      }));
+
+      sharpPromises.push(existingImageData);
     }
 
     if (!existsSync(bigPreviewPath)) {
       sharpPromises.push(generateSharpBigPreview(jpgFilePath, bigPreviewPath));
+    } else {
+      const existingImageData = readSharpImageData({
+        originalFilePath: jpgFilePath,
+        sharpFilePath: bigPreviewPath,
+        type: ImageType.BIG_PREVIEW,
+      }).then((output) => ({
+        originalFilePath: jpgFilePath,
+        sharpFilePath: bigPreviewPath,
+        ...output,
+      }));
+      sharpPromises.push(existingImageData);
     }
   });
 
@@ -134,18 +156,20 @@ export const readSharpImages = (
 
   return readingSharpImagesPromises;
 };
+
 // START HERE: package these in a way that combines the thumbnail and the preview image
 // or turn these into packages, and combine them somewhere else
 export const formatImagesToPackages = (unsortedImages: ReadingSharpData[]) => {
   const imagesPackage: { [index: string]: ImagePackage } = {};
   unsortedImages.forEach((unsortedImage) => {
-    const temp: Partial<ImagePackage> = {
+    const temp: ImagePackage = {
       id: unsortedImage.originalPathName,
       jpegPath: unsortedImage.originalPathName,
       nefPath: undefined, // @todo
       thumbnail: undefined,
       bigPreview: undefined,
     };
+
     if (unsortedImage.type === ImageType.THUMBNAIL) {
       temp.thumbnail = {
         data: unsortedImage.data,
@@ -158,7 +182,22 @@ export const formatImagesToPackages = (unsortedImages: ReadingSharpData[]) => {
       };
     }
 
-    imagesPackage[unsortedImage.originalPathName] = temp;
+    // Check if this image already exists in the package, if so, add the thumbnail or preview to it
+    if (imagesPackage[unsortedImage.originalPathName]) {
+      if (unsortedImage.type === ImageType.THUMBNAIL) {
+        imagesPackage[unsortedImage.originalPathName].thumbnail = {
+          data: unsortedImage.data,
+          pathName: unsortedImage.originalPathName,
+        };
+      } else if (unsortedImage.type === ImageType.BIG_PREVIEW) {
+        imagesPackage[unsortedImage.originalPathName].bigPreview = {
+          data: unsortedImage.data,
+          pathName: unsortedImage.originalPathName,
+        };
+      }
+    } else {
+      imagesPackage[unsortedImage.originalPathName] = temp;
+    }
   });
   return imagesPackage;
 };

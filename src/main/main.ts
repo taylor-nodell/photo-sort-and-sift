@@ -80,29 +80,19 @@ const sendImagesOnFolder = async (
 
   // Package these images in a format that will allow us to read back the original jpg and nef paths
   const packagedImages = formatImagesToPackages(unpackagedImages);
-  console.log('packaged ', packagedImages);
+  console.log(
+    'packaged ',
+    Object.keys(packagedImages).map((k) => {
+      return {
+        k,
+        originalPathName: packagedImages[k].jpegPath,
+        thumbnail: packagedImages[k].thumbnail ? 'yes' : 'no',
+        bigPreview: packagedImages[k].bigPreview ? 'yes' : 'no',
+      };
+    })
+  );
 
-  const getImageData = async (imagePath: string): Promise<ImagePackage> => {
-    // const imageDataPackage = {
-    //   id: imagePath, // @todo
-    //   jpegPath: path.resolve(folder, imagePath),
-    //   nefPath: undefined, // @todo
-    //   // @todo - the packaged images only have thumbnail or bigPreview, not both
-    //   thumbnail: packagedImages[imagePath].data,
-    //   bigPreview: bigPreviewImageData,
-    // };
-    return {};
-    return imageDataPackage;
-  };
-
-  // START HERE: Figure out how to take the sharp images in the folder and combine the thumbnail and preview images into one "ImagePackage", send that as an array of ImagePackages out to FE
-  // Additional Issue:
-  // Iterating over the file allJPGFileNames and getting the image data only gets the images we just generated
-  // Not ones we may have generated previously
-  // Need to read images via allJPGFileNames not generated SharpOutput
-  const allImagePackages = await Promise.all([
-    ...allJPGFileNames.map(getImageData),
-  ]);
+  const allImagePackages = Object.values(packagedImages);
 
   event.reply('processedImages', allImagePackages);
 };

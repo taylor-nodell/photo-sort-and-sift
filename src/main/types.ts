@@ -13,18 +13,18 @@ export interface ImagePackage {
   bigPreview: ImageData;
 }
 
-export type SharpOutput =
-  | {
-      originalFilePath: string;
-      sharpFilePath: string;
-      type: ImageType;
-    }
-  | {
-      originalFilePath: string;
-      sharpFilePath: string;
-      type: ImageType;
-      output: sharp.OutputInfo;
-    };
+export type SharpOutput = {
+  originalFilePath: string;
+  sharpFilePath: string;
+  type: ImageType;
+  output: sharp.OutputInfo;
+};
+
+export type ExistingImage = {
+  sharpFilePath: string;
+  originalFilePath: string;
+  type: ImageType;
+};
 
 export type ReadingSharpData = {
   sharpPathName: string;

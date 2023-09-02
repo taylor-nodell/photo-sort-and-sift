@@ -9,23 +9,16 @@
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
 
-import { existsSync } from 'fs';
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
-import {
-  formatImagesToPackages,
-  generateSharpBigPreview,
-  generateSharpImages,
-  generateSharpThumbnail,
-  getJPGFileNames,
-  readSharpImageData,
-  readSharpImages,
-  resolveHtmlPath,
-} from './util';
-import { GeneratedFileNameEnding, ImagePackage } from './types';
+import { getJPGFileNames, resolveHtmlPath } from './util';
+import { GeneratedFileNameEnding } from './types';
+import { generateSharpImages } from './generateSharpImages';
+import { formatImagesToPackages } from './packageImages';
+import { readSharpImages } from './readSharpImages';
 
 class AppUpdater {
   constructor() {

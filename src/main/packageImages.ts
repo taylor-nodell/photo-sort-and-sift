@@ -1,45 +1,49 @@
-// START HERE: package these in a way that combines the thumbnail and the preview image
-
 import { ReadingSharpData, ImagePackage, ImageType } from './types';
 
-// or turn these into packages, and combine them somewhere else
 export const formatImagesToPackages = (unsortedImages: ReadingSharpData[]) => {
-  const imagesPackage: { [index: string]: ImagePackage } = {};
+  // Map containing all the images in the package
+  const imagesPackage: { [index: string]: Partial<ImagePackage> } = {};
+
+  // Loop through all the images, package them, and add them to the map
   unsortedImages.forEach((unsortedImage) => {
-    const temp: ImagePackage = {
-      id: unsortedImage.originalPathName,
-      jpegPath: unsortedImage.originalPathName,
-      nefPath: undefined, // @todo
-      thumbnail: undefined,
-      bigPreview: undefined,
-    };
-
-    if (unsortedImage.type === ImageType.THUMBNAIL) {
-      temp.thumbnail = {
-        data: unsortedImage.data,
-        pathName: unsortedImage.originalPathName,
-      };
-    } else if (unsortedImage.type === ImageType.BIG_PREVIEW) {
-      temp.bigPreview = {
-        data: unsortedImage.data,
-        pathName: unsortedImage.originalPathName,
-      };
-    }
-
-    // Check if this image already exists in the package, if so, add the thumbnail or preview to it
+    // Check if this image already exists in the package,
     if (imagesPackage[unsortedImage.originalPathName]) {
+      // if the image already exists in the package, add the thumbnail or bigPreview to the package
+      const temp = imagesPackage[unsortedImage.originalPathName];
       if (unsortedImage.type === ImageType.THUMBNAIL) {
-        imagesPackage[unsortedImage.originalPathName].thumbnail = {
+        temp.thumbnail = {
           data: unsortedImage.data,
           pathName: unsortedImage.originalPathName,
         };
-      } else if (unsortedImage.type === ImageType.BIG_PREVIEW) {
-        imagesPackage[unsortedImage.originalPathName].bigPreview = {
+      }
+      if (unsortedImage.type === ImageType.BIG_PREVIEW) {
+        temp.bigPreview = {
           data: unsortedImage.data,
           pathName: unsortedImage.originalPathName,
         };
       }
     } else {
+      // The image does not exist in the package, create a new package
+      const temp: Partial<ImagePackage> = {
+        id: unsortedImage.originalPathName,
+        jpegPath: unsortedImage.originalPathName,
+        nefPath: undefined, // @todo
+        thumbnail:
+          unsortedImage.type === ImageType.THUMBNAIL
+            ? {
+                data: unsortedImage.data,
+                pathName: unsortedImage.originalPathName,
+              }
+            : undefined,
+        bigPreview:
+          unsortedImage.type === ImageType.BIG_PREVIEW
+            ? {
+                data: unsortedImage.data,
+                pathName: unsortedImage.originalPathName,
+              }
+            : undefined,
+      };
+
       imagesPackage[unsortedImage.originalPathName] = temp;
     }
   });

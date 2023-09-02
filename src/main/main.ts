@@ -8,16 +8,17 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import { readdir, readFile } from 'fs';
+
 import path from 'path';
 import { app, BrowserWindow, shell, ipcMain, dialog } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
 import MenuBuilder from './menu';
-import { resolveHtmlPath } from './util';
-
-// Native Dependency
-const sharp = require('sharp');
+import { getJPGFileNames, resolveHtmlPath } from './util';
+import { GeneratedFileNameEnding } from './types';
+import { generateSharpImages } from './generateSharpImages';
+import { formatImagesToPackages } from './packageImages';
+import { readSharpImages } from './readSharpImages';
 
 class AppUpdater {
   constructor() {
@@ -25,11 +26,6 @@ class AppUpdater {
     autoUpdater.logger = log;
     autoUpdater.checkForUpdatesAndNotify();
   }
-}
-
-interface ImageData {
-  id: string;
-  data: string; // Base64
 }
 
 let mainWindow: BrowserWindow | null = null;
@@ -45,44 +41,58 @@ const sendImagesOnFolder = async (
   event: Electron.IpcMainEvent,
   folder: string
 ) => {
-  const allImageFileNames = (await new Promise((resolve, reject) => {
-    readdir(folder, (err, files) => {
-      if (err) {
-        console.error(`error reading folder ${folder}, `, err);
-        reject(err);
-      }
-      const imageFiles = files.filter(
-        (file) => file.endsWith('.jpg') || file.endsWith('.JPG')
-      );
-      resolve(imageFiles);
-    });
-  })) as string[];
+  // Get the paths in the folder
+  const allJPGFileNames = await getJPGFileNames(folder);
+  const allJPGFullFilePaths = allJPGFileNames
+    .filter(
+      // Filter out any file path names that look like we already generated them with sharp, @todo - is there a better way?
+      (jpgFilePathName) =>
+        !jpgFilePathName.endsWith(GeneratedFileNameEnding.THUMBNAIL) &&
+        !jpgFilePathName.endsWith(GeneratedFileNameEnding.BIG_PREVIEW)
+    )
+    .map((jpgFileName) => path.resolve(folder, jpgFileName));
+  console.log('allJPGFullFilePaths: \n', allJPGFullFilePaths);
 
-  const getImageData = async (imagePath: string): Promise<ImageData> => {
-    return new Promise((resolve, reject) => {
-      readFile(
-        path.resolve(folder, imagePath),
-        { encoding: 'base64' },
-        (error, data) => {
-          if (error) {
-            console.error(`error reading image ${imagePath}, `, error);
-            reject(error);
-          }
-          resolve({
-            id: imagePath,
-            data,
-          });
-        }
-      );
-    });
-  };
+  // Generate Sharp Images
+  const sharpImageData = await Promise.all(
+    generateSharpImages(allJPGFullFilePaths)
+  );
 
-  const allImages = await Promise.all(allImageFileNames.map(getImageData));
+  // Read the sharp images that we just generated
+  const unpackagedImages = await Promise.all(readSharpImages(sharpImageData));
+  console.log(
+    'unpackaged ',
+    unpackagedImages.map((u) => {
+      return {
+        originalPathName: u.originalPathName,
+        sharpPathName: u.sharpPathName,
+        type: u.type,
+      };
+    })
+  );
 
-  event.reply('images', allImages);
+  // Package these images in a format that will allow us to read back the original jpg and nef paths
+  const packagedImages = formatImagesToPackages(unpackagedImages);
+  console.log(
+    'packaged ',
+    Object.keys(packagedImages).map((k) => {
+      return {
+        k,
+        originalPathName: packagedImages[k].jpegPath,
+        thumbnail: packagedImages[k].thumbnail ? 'yes' : 'no',
+        bigPreview: packagedImages[k].bigPreview ? 'yes' : 'no',
+      };
+    })
+  );
+
+  const allImagePackages = Object.values(packagedImages);
+
+  event.reply('processedImages', allImagePackages);
 };
 
 ipcMain.on('folder-selection', async (event, args) => {
+  // @todo - Choosing a folder always says "No files match your search" in the windows file browser, can this be less confusing?
+  // We could show the files but we are trying to choose a folder, not a file
   if (!mainWindow) {
     console.error('folder-selection: no main window');
     return;
@@ -200,7 +210,6 @@ app
   .whenReady()
   .then(() => {
     createWindow();
-    console.log(sharp);
 
     app.on('activate', () => {
       // On macOS it's common to re-create a window in the app when the

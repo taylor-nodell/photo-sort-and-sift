@@ -19,14 +19,14 @@ const Layout = () => {
         {loading && 'Loading...'}
         {!loading && images.length === 0 && 'No jpg images'}
         {images
-          .filter((_, index) => index < 10)
+          .map((imagePackage) => imagePackage.thumbnail)
           .map((image) => (
-            <div key={image.id}>
+            <div key={image.pathName}>
               <img
                 width={200}
                 height={200}
                 src={`data:image/jpeg;charset=utf-8;base64,${image.data}`}
-                alt={image.id}
+                alt={image.pathName}
               />
             </div>
           ))}

@@ -3,17 +3,25 @@ import { outDuplicatesById } from '../../../utils'; // @todo - figure out why te
 // eslint-disable-next-line import/no-cycle
 import { AppContext } from './app-context';
 
-export interface Image {
+export interface ImageData {
+  pathName: string; // path to the sharp generated image
+  data: string; // Base64
+}
+
+export interface ImagePackage {
   id: string;
-  data: string;
+  jpegPath: string;
+  nefPath?: string;
+  thumbnail: ImageData;
+  bigPreview: ImageData;
 }
 
 const useApp = () => {
   const [folderPath, setFolderPath] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState<Image[]>([]);
+  const [images, setImages] = useState<ImagePackage[]>([]);
 
-  const addImages = (moreImages: Image[]) => {
+  const addImages = (moreImages: ImagePackage[]) => {
     setImages((prevImages) => {
       return [...prevImages, ...moreImages].filter(outDuplicatesById);
     });
@@ -29,8 +37,10 @@ const useApp = () => {
           setFolderPath(path);
         }
       });
-      window.electron.ipcRenderer.on('images', (args) => {
-        const castedImages = args as Image[];
+      window.electron.ipcRenderer.on('processedImages', (args) => {
+        const castedImages = args as ImagePackage[];
+        console.log(args);
+
         if (args) {
           setImages(castedImages ?? []);
         }

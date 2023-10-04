@@ -8,7 +8,7 @@ const Layout = () => {
 
   useEffect(() => {
     ensureFolderPath();
-  });
+  }, []);
 
   return (
     <div className="main">

@@ -8,6 +8,8 @@ module.exports = {
     'react/react-in-jsx-scope': 'off',
     // Nop, imagine utils.ts or shared-functions.ts having to export a default function, doesn't make sense
     'import/prefer-default-export': 'off',
+    // Need an empty dependency array in the useEffect for ensureFolderPath
+    'react-hooks/exhaustive-deps': 'off',
   },
   parserOptions: {
     ecmaVersion: 2020,

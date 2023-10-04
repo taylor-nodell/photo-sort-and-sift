@@ -21,3 +21,16 @@
   border-top: 5px solid;
   width: 100vw;
 }
+
+.selected {
+  border: 3px green solid;
+}
+
+/* @todo: use a css reset */
+.btn {
+  background: none;
+  padding: 0;
+  margin: 0;
+  font-family: inherit;
+  cursor: pointer;
+}

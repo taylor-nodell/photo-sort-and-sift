@@ -20,6 +20,7 @@ const useApp = () => {
   const [folderPath, setFolderPath] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<ImagePackage[]>([]);
+  const [selectedImage, setSelectedImage] = useState<ImagePackage>();
 
   const addImages = (moreImages: ImagePackage[]) => {
     setImages((prevImages) => {
@@ -64,6 +65,8 @@ const useApp = () => {
     ensureFolderPath,
     changeFolder,
     loading,
+    selectedImage,
+    setSelectedImage,
   };
 };
 

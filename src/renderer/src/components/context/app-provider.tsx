@@ -43,7 +43,6 @@ const useApp = () => {
 
         if (args) {
           setImages(castedImages ?? []);
-          console.log('castedImages', castedImages);
 
           setSelectedImage(castedImages[0]);
         }
@@ -69,6 +68,7 @@ const useApp = () => {
     loading,
     selectedImage,
     setSelectedImage,
+    setImages,
   };
 };
 

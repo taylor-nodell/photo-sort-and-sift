@@ -40,10 +40,12 @@ const useApp = () => {
       });
       window.electron.ipcRenderer.on('processedImages', (args) => {
         const castedImages = args as ImagePackage[];
-        console.log(args);
 
         if (args) {
           setImages(castedImages ?? []);
+          console.log('castedImages', castedImages);
+
+          setSelectedImage(castedImages[0]);
         }
         setLoading(false);
       });

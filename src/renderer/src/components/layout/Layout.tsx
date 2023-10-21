@@ -20,6 +20,35 @@ const Layout = () => {
     ensureFolderPath();
   }, []);
 
+  useEffect(() => {
+    const handleKeyPress = (e: KeyboardEvent) => {
+      e.preventDefault();
+
+      const index = images.findIndex((image) => image.id === selectedImage?.id);
+
+      if (index === -1) return;
+      switch (e.key) {
+        case 'ArrowLeft':
+          if (index === 0) return;
+          setSelectedImage(images[index - 1]);
+          break;
+        case 'ArrowRight':
+          if (index === images.length - 1) return;
+          setSelectedImage(images[index + 1]);
+          break;
+        default:
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyPress);
+
+    // Remove the event listener when the component unmounts
+    return () => {
+      window.removeEventListener('keydown', handleKeyPress);
+    };
+  }, [selectedImage, images]);
+
   const handleImageClick = (imagePackage: ImagePackage) => {
     setSelectedImage(imagePackage);
   };

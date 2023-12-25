@@ -3,6 +3,7 @@ import sharp from 'sharp';
 export interface ImageData {
   pathName: string; // path to the sharp generated image
   data: string; // Base64
+  sharpOutput: sharp.OutputInfo;
 }
 
 export interface ImagePackage {

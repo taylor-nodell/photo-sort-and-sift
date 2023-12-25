@@ -1,12 +1,10 @@
 import { FunctionComponent, PropsWithChildren, useState } from 'react';
+import { ImageData } from 'main/types';
+
 import { outDuplicatesById } from '../../../utils'; // @todo - figure out why test-ubuntu latest can't find 'renderer/utils'
 // eslint-disable-next-line import/no-cycle
 import { AppContext } from './app-context';
-
-export interface ImageData {
-  pathName: string; // path to the sharp generated image
-  data: string; // Base64
-}
+import { PhotoManagerFacade } from '../../../photoManagerFacade';
 
 export interface ImagePackage {
   id: string;
@@ -29,6 +27,7 @@ const useApp = () => {
   };
 
   const ensureFolderPath = () => {
+    console.log('ensureFolderPath');
     if (!folderPath && window.electron) {
       window.electron.ipcRenderer.sendMessage('folder-selection', []);
       setLoading(true);
@@ -38,15 +37,31 @@ const useApp = () => {
           setFolderPath(path);
         }
       });
-      window.electron.ipcRenderer.on('processedImages', (args) => {
-        const castedImages = args as ImagePackage[];
 
-        if (args) {
-          setImages(castedImages ?? []);
-          console.log('castedImages', castedImages);
+      window.electron.ipcRenderer.on('processedImages', async (args) => {
+        const photoManagerData = args as { jpgPath: string }[];
 
-          setSelectedImage(castedImages[0]);
+        if (photoManagerData) {
+          const photoManagerFacades = photoManagerData.map(
+            (data) => new PhotoManagerFacade(data.jpgPath)
+          );
+
+          // look at the first image
+          console.log('getting photo');
+          const thumbnail =
+            (await photoManagerFacades[0].getThumbnail()) as ImageData;
+
+          console.log('thumbnail', thumbnail);
+          setSelectedImage({
+            id: thumbnail.pathName,
+            jpegPath: thumbnail.pathName,
+            thumbnail,
+            bigPreview: thumbnail,
+          });
+        } else {
+          console.log('no photoManagerData');
         }
+
         setLoading(false);
       });
     }

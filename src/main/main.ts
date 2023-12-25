@@ -16,9 +16,10 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { getJPGFileNames, resolveHtmlPath } from './util';
 import { GeneratedFileNameEnding } from './types';
-import { generateSharpImages } from './generateSharpImages';
-import { formatImagesToPackages } from './packageImages';
-import { readSharpImages } from './readSharpImages';
+// import { generateSharpImages } from './generateSharpImages';
+// import { formatImagesToPackages } from './packageImages';
+// import { readSharpImages } from './readSharpImages';
+import { PhotoManager } from './photoManager';
 
 class AppUpdater {
   constructor() {
@@ -37,6 +38,13 @@ ipcMain.on('ipc-example', async (event, arg) => {
   event.reply('ipc-example', msgTemplate('pong'));
 });
 
+ipcMain.on('getThumbnail', async (event, args: string[]) => {
+  const jpgPath = args[0];
+  const photoManager = new PhotoManager(jpgPath);
+  const thumbnail = await photoManager.getThumbnail();
+  event.reply('returnThumbnail', thumbnail);
+});
+
 const sendImagesOnFolder = async (
   event: Electron.IpcMainEvent,
   folder: string
@@ -53,41 +61,13 @@ const sendImagesOnFolder = async (
     .map((jpgFileName) => path.resolve(folder, jpgFileName));
   console.log('allJPGFullFilePaths: \n', allJPGFullFilePaths);
 
-  // Generate Sharp Images
-  const sharpImageData = await Promise.all(
-    generateSharpImages(allJPGFullFilePaths)
+  // Create PhotoManager instances for each image
+  const photoManagers = allJPGFullFilePaths.map(
+    (jpgFilePath) => new PhotoManager(jpgFilePath)
   );
 
-  // Read the sharp images that we just generated
-  const unpackagedImages = await Promise.all(readSharpImages(sharpImageData));
-  console.log(
-    'unpackaged ',
-    unpackagedImages.map((u) => {
-      return {
-        originalPathName: u.originalPathName,
-        sharpPathName: u.sharpPathName,
-        type: u.type,
-      };
-    })
-  );
-
-  // Package these images in a format that will allow us to read back the original jpg and nef paths
-  const packagedImages = formatImagesToPackages(unpackagedImages);
-  console.log(
-    'packaged ',
-    Object.keys(packagedImages).map((k) => {
-      return {
-        k,
-        originalPathName: packagedImages[k].jpegPath,
-        thumbnail: packagedImages[k].thumbnail ? 'yes' : 'no',
-        bigPreview: packagedImages[k].bigPreview ? 'yes' : 'no',
-      };
-    })
-  );
-
-  const allImagePackages = Object.values(packagedImages);
-
-  event.reply('processedImages', allImagePackages);
+  // Send the PhotoManagers over IPC
+  event.reply('processedImages', photoManagers);
 };
 
 ipcMain.on('folder-selection', async (event, args) => {

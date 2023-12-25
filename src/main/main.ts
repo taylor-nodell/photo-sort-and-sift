@@ -32,23 +32,30 @@ class AppUpdater {
 let mainWindow: BrowserWindow | null = null;
 let selectedFolder: string | null = null;
 
-ipcMain.on('ipc-example', async (event, arg) => {
+ipcMain.on('ipcExample', async (event, arg) => {
   const msgTemplate = (pingPong: string) => `IPC test: ${pingPong}`;
   console.log(msgTemplate(arg));
-  event.reply('ipc-example', msgTemplate('pong'));
+  event.reply('ipcExample', msgTemplate('pong'));
 });
 
 ipcMain.on('getThumbnail', async (event, args: string[]) => {
+  // @todo = cache the creating new PhotoManager instances?
   const jpgPath = args[0];
   const photoManager = new PhotoManager(jpgPath);
   const thumbnail = await photoManager.getThumbnail();
+  console.log('Got the thumbnail from photoManager', thumbnail);
   event.reply('returnThumbnail', thumbnail);
 });
 
-const sendImagesOnFolder = async (
-  event: Electron.IpcMainEvent,
-  folder: string
-) => {
+ipcMain.on('getBigPreview', async (event, args: string[]) => {
+  // @todo = cache the creating new PhotoManager instances?
+  const jpgPath = args[0];
+  const photoManager = new PhotoManager(jpgPath);
+  const bigPreview = await photoManager.getBigPreview();
+  event.reply('returnBigPreview', bigPreview);
+});
+
+const sendJpgPaths = async (event: Electron.IpcMainEvent, folder: string) => {
   // Get the paths in the folder
   const allJPGFileNames = await getJPGFileNames(folder);
   const allJPGFullFilePaths = allJPGFileNames
@@ -61,20 +68,15 @@ const sendImagesOnFolder = async (
     .map((jpgFileName) => path.resolve(folder, jpgFileName));
   console.log('allJPGFullFilePaths: \n', allJPGFullFilePaths);
 
-  // Create PhotoManager instances for each image
-  const photoManagers = allJPGFullFilePaths.map(
-    (jpgFilePath) => new PhotoManager(jpgFilePath)
-  );
-
   // Send the PhotoManagers over IPC
-  event.reply('processedImages', photoManagers);
+  event.reply('gotImagePaths', allJPGFullFilePaths);
 };
 
-ipcMain.on('folder-selection', async (event, args) => {
+ipcMain.on('folderSelection', async (event, args) => {
   // @todo - Choosing a folder always says "No files match your search" in the windows file browser, can this be less confusing?
   // We could show the files but we are trying to choose a folder, not a file
   if (!mainWindow) {
-    console.error('folder-selection: no main window');
+    console.error('folderSelection: no main window');
     return;
   }
   const changeFolder = args?.[0] === 'change-folder';
@@ -87,8 +89,9 @@ ipcMain.on('folder-selection', async (event, args) => {
     }
   }
   if (selectedFolder) {
-    event.reply('folder-selection', selectedFolder);
-    sendImagesOnFolder(event, selectedFolder);
+    event.reply('folderSelection', selectedFolder);
+    // instead of sending the images on folder over, just send the paths of the jpgs as ids
+    sendJpgPaths(event, selectedFolder);
   }
 });
 

@@ -18,7 +18,12 @@ const useApp = () => {
   const [folderPath, setFolderPath] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<ImagePackage[]>([]);
-  const [selectedImage, setSelectedImage] = useState<ImagePackage>();
+  // const [selectedImage, setSelectedImage] = useState<ImagePackage>();
+  const [selectedPhotoManagerFacade, setSelectedPhotoManagerFacade] =
+    useState<PhotoManagerFacade>();
+  const [photoManagerFacades, setPhotoManagerFacades] = useState<
+    PhotoManagerFacade[]
+  >([]);
 
   const addImages = (moreImages: ImagePackage[]) => {
     setImages((prevImages) => {
@@ -29,47 +34,41 @@ const useApp = () => {
   const ensureFolderPath = () => {
     console.log('ensureFolderPath');
     if (!folderPath && window.electron) {
-      window.electron.ipcRenderer.sendMessage('folder-selection', []);
+      window.electron.ipcRenderer.sendMessage('folderSelection', []);
       setLoading(true);
-      window.electron.ipcRenderer.on('folder-selection', (args) => {
+      window.electron.ipcRenderer.on('folderSelection', (args) => {
         const path = args as string;
         if (path) {
           setFolderPath(path);
         }
       });
+      // once you get the image jpg file paths, you can start loading the images
+      window.electron.ipcRenderer.on('gotImagePaths', async (args) => {
+        // Set all the images as PhotoManagerFacades
+        const imagePaths = args as string[];
+        const pmfFacades = imagePaths.map(
+          (imagePath) => new PhotoManagerFacade(imagePath)
+        );
+        setSelectedPhotoManagerFacade(pmfFacades[0]);
+        setPhotoManagerFacades(pmfFacades);
 
-      window.electron.ipcRenderer.on('processedImages', async (args) => {
-        const photoManagerData = args as { jpgPath: string }[];
-
-        if (photoManagerData) {
-          const photoManagerFacades = photoManagerData.map(
-            (data) => new PhotoManagerFacade(data.jpgPath)
-          );
-
-          // look at the first image
-          console.log('getting photo');
-          const thumbnail =
-            (await photoManagerFacades[0].getThumbnail()) as ImageData;
-
-          console.log('thumbnail', thumbnail);
-          setSelectedImage({
-            id: thumbnail.pathName,
-            jpegPath: thumbnail.pathName,
-            thumbnail,
-            bigPreview: thumbnail,
-          });
-        } else {
-          console.log('no photoManagerData');
-        }
-
-        setLoading(false);
+        // Get the thumbnails and big previews
+        // in own Promise.all so they can be done in parallel
+        // const thumbnails = await Promise.all(
+        //   photoManagerFacades.map((pmf) => pmf.getThumbnail())
+        // );
+        // const bigPreviews = await Promise.all(
+        //   photoManagerFacades.map((pmf) => pmf.getBigPreview())
+        // );
       });
+
+      setLoading(false);
     }
   };
 
   const changeFolder = () => {
     setLoading(true);
-    window.electron.ipcRenderer.sendMessage('folder-selection', [
+    window.electron.ipcRenderer.sendMessage('folderSelection', [
       'change-folder',
     ]);
   };
@@ -77,13 +76,13 @@ const useApp = () => {
   return {
     folderPath,
     setFolderPath,
-    images,
     addImages,
     ensureFolderPath,
     changeFolder,
     loading,
-    selectedImage,
-    setSelectedImage,
+    selectedPhotoManagerFacade,
+    setSelectedPhotoManagerFacade,
+    photoManagerFacades,
   };
 };
 

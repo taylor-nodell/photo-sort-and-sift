@@ -1,5 +1,5 @@
-import { useEffect } from 'react';
-import { ImagePackage } from 'main/types';
+import { useEffect, useState } from 'react';
+import { ImageData } from 'main/types';
 
 import { useApp } from '../context/app-context';
 import SelectFolder from '../select-folder/SelectFolder';
@@ -8,49 +8,42 @@ import BigPreview from '../big-preview/BigPreview';
 
 const Layout = () => {
   const {
-    images,
+    photoManagerFacades,
     ensureFolderPath,
     folderPath,
     loading,
-    setSelectedImage,
-    selectedImage,
+    selectedPhotoManagerFacade,
+    setSelectedPhotoManagerFacade,
   } = useApp();
+
+  const [thumbnails, setThumbnails] = useState<
+    { thumbnail: ImageData; jpgPath: string }[]
+  >([]);
 
   useEffect(() => {
     ensureFolderPath();
   }, []);
 
   useEffect(() => {
-    const handleKeyPress = (e: KeyboardEvent) => {
-      e.preventDefault();
-
-      const index = images.findIndex((image) => image.id === selectedImage?.id);
-
-      if (index === -1) return;
-      switch (e.key) {
-        case 'ArrowLeft':
-          if (index === 0) return;
-          setSelectedImage(images[index - 1]);
-          break;
-        case 'ArrowRight':
-          if (index === images.length - 1) return;
-          setSelectedImage(images[index + 1]);
-          break;
-        default:
-          break;
-      }
+    console.log('photoManagerFacades', photoManagerFacades);
+    const fetchThumbnails = async () => {
+      const tnails = await Promise.all(
+        photoManagerFacades.map(async (photoManagerFacade) => {
+          const thumbnail = await photoManagerFacade.getThumbnail();
+          return { ...photoManagerFacade, thumbnail };
+        })
+      );
+      console.log('thumbnails', tnails);
+      setThumbnails(tnails);
     };
 
-    window.addEventListener('keydown', handleKeyPress);
+    fetchThumbnails();
+  }, [photoManagerFacades]);
 
-    // Remove the event listener when the component unmounts
-    return () => {
-      window.removeEventListener('keydown', handleKeyPress);
-    };
-  }, [selectedImage, images]);
-
-  const handleImageClick = (imagePackage: ImagePackage) => {
-    setSelectedImage(imagePackage);
+  const handleImageClick = (jpgPath: string) => {
+    setSelectedPhotoManagerFacade(
+      photoManagerFacades.find((pmf) => pmf.jpgPath === jpgPath)
+    );
   };
 
   return (
@@ -62,26 +55,26 @@ const Layout = () => {
         <SelectFolder />
         <div>Path: {folderPath}</div>
         {loading && 'Loading...'}
-        {!loading && images.length === 0 && 'No jpg images'}
-        {images
-          .filter((image) => image.thumbnail)
-          .map((image) => (
-            <button
-              key={image.thumbnail.pathName}
-              onClick={() => handleImageClick(image)}
-              className={`btn ${
-                selectedImage?.id === image.id ? 'selected' : ''
-              }`}
-              type="button"
-            >
-              <img
-                width={200}
-                height={200}
-                src={`data:image/jpeg;charset=utf-8;base64,${image.thumbnail.data}`}
-                alt={image.thumbnail.pathName}
-              />
-            </button>
-          ))}
+        {!loading && thumbnails.length === 0 && 'No jpg thumbnails'}
+        {thumbnails.map((thumbnail) => (
+          <button
+            key={thumbnail.thumbnail.pathName}
+            onClick={() => handleImageClick(thumbnail.jpgPath)}
+            className={`btn ${
+              selectedPhotoManagerFacade?.jpgPath === thumbnail.jpgPath
+                ? 'selected'
+                : ''
+            }`}
+            type="button"
+          >
+            <img
+              width={200}
+              height={200}
+              src={`data:image/jpeg;charset=utf-8;base64,${thumbnail.thumbnail.data}`}
+              alt="Placeholder @todo replace with alt text in PhotoManager"
+            />
+          </button>
+        ))}
       </div>
     </div>
   );

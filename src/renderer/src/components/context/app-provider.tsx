@@ -64,6 +64,7 @@ const useApp = () => {
     loading,
     selectedPhotoManagerFacade,
     setSelectedPhotoManagerFacade,
+    setPhotoManagerFacades,
     photoManagerFacades,
   };
 };

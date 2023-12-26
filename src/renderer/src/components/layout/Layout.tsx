@@ -3,8 +3,10 @@ import { ImageData } from 'main/types';
 
 import { useApp } from '../context/app-context';
 import SelectFolder from '../select-folder/SelectFolder';
-import './Layout.css';
 import BigPreview from '../big-preview/BigPreview';
+
+import './Layout.css';
+import useKeyHandlers from './useKeyHandlers';
 
 const Layout = () => {
   const {
@@ -15,6 +17,7 @@ const Layout = () => {
     selectedPhotoManagerFacade,
     setSelectedPhotoManagerFacade,
   } = useApp();
+  useKeyHandlers();
 
   const [thumbnails, setThumbnails] = useState<
     { thumbnail: ImageData; jpgPath: string }[]

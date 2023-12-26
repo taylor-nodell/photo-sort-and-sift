@@ -38,21 +38,20 @@ ipcMain.on('ipcExample', async (event, arg) => {
   event.reply('ipcExample', msgTemplate('pong'));
 });
 
-ipcMain.on('getThumbnail', async (event, args: string[]) => {
+ipcMain.handle('getThumbnail', async (event, args: string[]) => {
   // @todo = cache the creating new PhotoManager instances?
   const jpgPath = args[0];
   const photoManager = new PhotoManager(jpgPath);
   const thumbnail = await photoManager.getThumbnail();
-  console.log('Got the thumbnail from photoManager', thumbnail);
-  event.reply('returnThumbnail', thumbnail);
+  return thumbnail;
 });
 
-ipcMain.on('getBigPreview', async (event, args: string[]) => {
+ipcMain.handle('getBigPreview', async (event, args: string[]) => {
   // @todo = cache the creating new PhotoManager instances?
   const jpgPath = args[0];
   const photoManager = new PhotoManager(jpgPath);
   const bigPreview = await photoManager.getBigPreview();
-  event.reply('returnBigPreview', bigPreview);
+  return bigPreview;
 });
 
 const sendJpgPaths = async (event: Electron.IpcMainEvent, folder: string) => {

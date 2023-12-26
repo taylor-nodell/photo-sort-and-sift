@@ -27,5 +27,8 @@ contextBridge.exposeInMainWorld('electron', {
     removeListener(channel: Channels, listener: (...args: unknown[]) => void) {
       ipcRenderer.removeListener(channel, listener);
     },
+    invoke(channel: Channels, ...args: unknown[]) {
+      return ipcRenderer.invoke(channel, args);
+    },
   },
 });

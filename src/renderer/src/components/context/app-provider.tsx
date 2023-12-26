@@ -1,7 +1,6 @@
 import { FunctionComponent, PropsWithChildren, useState } from 'react';
 import { ImageData } from 'main/types';
 
-import { outDuplicatesById } from '../../../utils'; // @todo - figure out why test-ubuntu latest can't find 'renderer/utils'
 // eslint-disable-next-line import/no-cycle
 import { AppContext } from './app-context';
 import { PhotoManagerFacade } from '../../../photoManagerFacade';
@@ -17,19 +16,12 @@ export interface ImagePackage {
 const useApp = () => {
   const [folderPath, setFolderPath] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState<ImagePackage[]>([]);
   // const [selectedImage, setSelectedImage] = useState<ImagePackage>();
   const [selectedPhotoManagerFacade, setSelectedPhotoManagerFacade] =
     useState<PhotoManagerFacade>();
   const [photoManagerFacades, setPhotoManagerFacades] = useState<
     PhotoManagerFacade[]
   >([]);
-
-  const addImages = (moreImages: ImagePackage[]) => {
-    setImages((prevImages) => {
-      return [...prevImages, ...moreImages].filter(outDuplicatesById);
-    });
-  };
 
   const ensureFolderPath = () => {
     console.log('ensureFolderPath');
@@ -51,15 +43,6 @@ const useApp = () => {
         );
         setSelectedPhotoManagerFacade(pmfFacades[0]);
         setPhotoManagerFacades(pmfFacades);
-
-        // Get the thumbnails and big previews
-        // in own Promise.all so they can be done in parallel
-        // const thumbnails = await Promise.all(
-        //   photoManagerFacades.map((pmf) => pmf.getThumbnail())
-        // );
-        // const bigPreviews = await Promise.all(
-        //   photoManagerFacades.map((pmf) => pmf.getBigPreview())
-        // );
       });
 
       setLoading(false);
@@ -76,7 +59,6 @@ const useApp = () => {
   return {
     folderPath,
     setFolderPath,
-    addImages,
     ensureFolderPath,
     changeFolder,
     loading,

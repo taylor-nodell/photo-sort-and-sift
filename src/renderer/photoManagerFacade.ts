@@ -8,38 +8,24 @@ export class PhotoManagerFacade {
   }
 
   async getThumbnail(): Promise<ImageData> {
-    console.log('getThumbnail', this.jpgPath);
-    // @todo can i cache this if I already have it?
-    return new Promise((resolve, reject) => {
-      window.electron.ipcRenderer.sendMessage('getThumbnail', [this.jpgPath]);
-      window.electron.ipcRenderer.once('returnThumbnail', (args: unknown) => {
-        console.log('returnThumbnailARGS', args);
-        // @todo - this typing is  weird, can I type the ipcRenderer.once call to be more specific?
-        const thumbnail = args as ImageData;
-        console.log('returnThumbnail', `${thumbnail.pathName}`, thumbnail);
+    return window.electron.ipcRenderer
+      .invoke('getThumbnail', this.jpgPath)
+      .then((thumbnail) => {
         if (thumbnail) {
-          resolve(thumbnail);
-        } else {
-          reject(new Error('Failed to generate thumbnail'));
+          return thumbnail as ImageData;
         }
+        throw new Error('Failed to generate thumbnail');
       });
-    });
   }
 
-  async getBigPreview() {
-    // @todo - this is a copy of getThumbnail, refactor to share code
-    console.log('getBigPreview', this.jpgPath);
-    // @todo can i cache this if I already have it?
-    return new Promise((resolve, reject) => {
-      window.electron.ipcRenderer.sendMessage('getBigPreview', [this.jpgPath]);
-      window.electron.ipcRenderer.once('returnBigPreview', (bigPreview) => {
-        console.log('returnBigPreview', bigPreview);
+  async getBigPreview(): Promise<ImageData> {
+    return window.electron.ipcRenderer
+      .invoke('getBigPreview', this.jpgPath)
+      .then((bigPreview) => {
         if (bigPreview) {
-          resolve(bigPreview);
-        } else {
-          reject(new Error('Failed to generate bigPreview'));
+          return bigPreview as ImageData;
         }
+        throw new Error('Failed to generate bigPreview');
       });
-    });
   }
 }

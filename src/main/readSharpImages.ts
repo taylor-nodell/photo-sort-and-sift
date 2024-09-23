@@ -20,6 +20,7 @@ export const readSharpImageData = async (
           sharpPathName: sharpOutput.sharpFilePath,
           originalPathName: sharpOutput.originalFilePath,
           type: sharpOutput.type,
+          orientation: sharpOutput.orientation,
           data,
         });
       }

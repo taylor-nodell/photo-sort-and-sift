@@ -14,6 +14,7 @@ export interface ImagePackage {
   nefPath?: string;
   thumbnail: ImageData;
   bigPreview: ImageData;
+  orientation: number;
 }
 
 const useApp = () => {

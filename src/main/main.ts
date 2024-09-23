@@ -57,19 +57,17 @@ const sendImagesOnFolder = async (
   const sharpImageData = await Promise.all(
     generateSharpImages(allJPGFullFilePaths)
   );
-
-  // Read the sharp images that we just generated
-  const unpackagedImages = await Promise.all(readSharpImages(sharpImageData));
   console.log(
-    'unpackaged ',
-    unpackagedImages.map((u) => {
+    'sharpImageData ',
+    sharpImageData.map((s) => {
       return {
-        originalPathName: u.originalPathName,
-        sharpPathName: u.sharpPathName,
-        type: u.type,
+        orientation: s.orientation,
       };
     })
   );
+
+  // Read the sharp images that we just generated
+  const unpackagedImages = await Promise.all(readSharpImages(sharpImageData));
 
   // Package these images in a format that will allow us to read back the original jpg and nef paths
   const packagedImages = formatImagesToPackages(unpackagedImages);
@@ -81,6 +79,7 @@ const sendImagesOnFolder = async (
         originalPathName: packagedImages[k].jpegPath,
         thumbnail: packagedImages[k].thumbnail ? 'yes' : 'no',
         bigPreview: packagedImages[k].bigPreview ? 'yes' : 'no',
+        orientation: packagedImages[k].orientation,
       };
     })
   );

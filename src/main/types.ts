@@ -11,6 +11,7 @@ export interface ImagePackage {
   nefPath?: string;
   thumbnail: ImageData;
   bigPreview: ImageData;
+  orientation: number;
 }
 
 export type SharpOutput = {
@@ -18,6 +19,7 @@ export type SharpOutput = {
   sharpFilePath: string;
   type: ImageType;
   output: sharp.OutputInfo;
+  orientation?: number;
 };
 
 export type ExistingImage = {
@@ -31,6 +33,7 @@ export type ReadingSharpData = {
   originalPathName: string;
   type: ImageType;
   data: string;
+  orientation?: number;
 };
 
 export enum ImageType {

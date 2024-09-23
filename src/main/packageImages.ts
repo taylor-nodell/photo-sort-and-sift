@@ -23,6 +23,7 @@ export const formatImagesToPackages = (unsortedImages: ReadingSharpData[]) => {
         };
       }
     } else {
+      console.log('unsortedImage.orientation', unsortedImage.orientation);
       // The image does not exist in the package, create a new package
       const temp: Partial<ImagePackage> = {
         id: unsortedImage.originalPathName,
@@ -42,6 +43,7 @@ export const formatImagesToPackages = (unsortedImages: ReadingSharpData[]) => {
                 pathName: unsortedImage.originalPathName,
               }
             : undefined,
+        orientation: unsortedImage.orientation,
       };
 
       imagesPackage[unsortedImage.originalPathName] = temp;

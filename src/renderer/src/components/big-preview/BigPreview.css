@@ -1,0 +1,16 @@
+.BigPreviewContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 500px; /* Keep a fixed height */
+    padding-bottom: 20px;
+    overflow: hidden; /* Prevent overflow */
+}
+
+.BigPreviewContainer img {
+    width: auto;
+    height: 100%;
+    object-fit: contain; /* Ensure the entire image is visible */
+}
+

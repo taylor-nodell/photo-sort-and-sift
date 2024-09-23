@@ -6,12 +6,10 @@ const BigPreview = () => {
 
   return selectedImage ? (
     <div className="BigPreviewContainer">
-      <div key={selectedImage.jpegPath}>
-        <img
-          src={`data:image/jpeg;charset=utf-8;base64,${selectedImage.bigPreview.data}`}
-          alt={selectedImage.jpegPath}
-        />
-      </div>
+      <img
+        src={`data:image/jpeg;charset=utf-8;base64,${selectedImage.bigPreview.data}`}
+        alt={selectedImage.jpegPath}
+      />
     </div>
   ) : null;
 };

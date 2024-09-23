@@ -12,14 +12,21 @@ export const generateSharpThumbnail = async (
   originalFilePath: string,
   newFilePath: string
 ): Promise<SharpOutput> => {
+  // Get metadata to determine the image orientation
+  const metadata = await sharp(originalFilePath).metadata();
+  // Use the orientation property from the metadata
+  const { orientation } = metadata;
+
   return sharp(originalFilePath)
     .resize(200, 200, { fit: 'contain' })
+    .withMetadata()
     .toFile(newFilePath)
     .then((output) => {
       return {
         originalFilePath,
         sharpFilePath: newFilePath,
         type: ImageType.THUMBNAIL,
+        orientation,
         output,
       };
     })
@@ -35,14 +42,20 @@ export const generateSharpBigPreview = async (
   originalFilePath: string,
   newFilePath: string
 ): Promise<SharpOutput> => {
+  // Get metadata to determine the image orientation
+  const metadata = await sharp(originalFilePath).metadata();
+  const { orientation } = metadata;
+
   return sharp(originalFilePath)
     .resize(600, 400, { fit: 'contain' })
+    .withMetadata()
     .toFile(newFilePath)
     .then((output) => {
       return {
         originalFilePath,
         sharpFilePath: newFilePath,
         type: ImageType.BIG_PREVIEW,
+        orientation,
         output,
       };
     })
@@ -68,6 +81,8 @@ export const readExistingImageData = async (
           existingImage.sharpFilePath
         ).metadata();
 
+        console.log('Existing photo metadata: ', metadata);
+
         // If any of the metadata is undefined, reject
         if (
           !metadata ||
@@ -85,6 +100,7 @@ export const readExistingImageData = async (
           sharpFilePath: existingImage.sharpFilePath,
           originalFilePath: existingImage.originalFilePath,
           type: existingImage.type,
+          orientation: metadata.orientation,
           output: {
             format: metadata.format,
             size: metadata.size || 0,

@@ -5,8 +5,8 @@ import {
   GeneratedFileNameEnding,
   ImageType,
   ExistingImage,
-} from './types';
-import { validateExistingImage } from './util';
+} from '../types';
+import { validateExistingImage } from '../util';
 
 export const generateSharpThumbnail = async (
   originalFilePath: string,

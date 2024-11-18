@@ -4,6 +4,7 @@ import {
   shell,
   BrowserWindow,
   MenuItemConstructorOptions,
+  dialog,
 } from 'electron';
 
 interface DarwinMenuItemConstructorOptions extends MenuItemConstructorOptions {
@@ -53,6 +54,32 @@ export default class MenuBuilder {
   }
 
   buildDarwinTemplate(): MenuItemConstructorOptions[] {
+    const subMenuFile: DarwinMenuItemConstructorOptions = {
+      label: 'File',
+      submenu: [
+        {
+          label: 'Select Folder',
+          accelerator: 'Command+O',
+          click: async () => {
+            const result = await dialog.showOpenDialog(this.mainWindow, {
+              properties: ['openDirectory'],
+            });
+
+            if (result.filePaths.length > 0) {
+              const selectedFolder = result.filePaths[0];
+              this.mainWindow.webContents.send(
+                'folder-selected',
+                selectedFolder
+              );
+              this.mainWindow.setTitle(`Photo Sorter - ${selectedFolder}`);
+            }
+          },
+        },
+        { type: 'separator' },
+        { role: 'quit' }, // Standard role for quitting the application
+      ],
+    };
+
     const subMenuAbout: DarwinMenuItemConstructorOptions = {
       label: 'Electron',
       submenu: [
@@ -189,7 +216,15 @@ export default class MenuBuilder {
         ? subMenuViewDev
         : subMenuViewProd;
 
-    return [subMenuAbout, subMenuEdit, subMenuView, subMenuWindow, subMenuHelp];
+    return [
+      subMenuAbout,
+      subMenuFile,
+
+      subMenuEdit,
+      subMenuView,
+      subMenuWindow,
+      subMenuHelp,
+    ];
   }
 
   buildDefaultTemplate() {

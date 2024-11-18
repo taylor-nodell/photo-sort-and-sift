@@ -6,11 +6,16 @@ import { setupIpcHandlers } from './ipc/ipcHandlers';
 
 let mainWindow: BrowserWindow | null = null;
 
-// eslint-disable-next-line promise/catch-or-return
-app.whenReady().then(() => {
-  mainWindow = createMainWindow();
-  setupAppEvents(() => createMainWindow());
-  setupUpdater();
-  // eslint-disable-next-line promise/always-return
-  if (mainWindow) setupIpcHandlers(mainWindow);
-});
+app
+  .whenReady()
+  .then(() => {
+    mainWindow = createMainWindow();
+    setupAppEvents(() => createMainWindow());
+    setupUpdater();
+    // eslint-disable-next-line promise/always-return
+    if (mainWindow) setupIpcHandlers(mainWindow);
+  })
+  .catch((error) => {
+    // eslint-disable-next-line no-console
+    console.error('Error starting app', error);
+  });

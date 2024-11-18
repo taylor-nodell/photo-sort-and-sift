@@ -48,6 +48,9 @@ const useKeyHandlers = () => {
             });
           });
           break;
+        case 'Enter':
+          console.log(images.filter((i) => i.isKeeper));
+          break;
         default:
           break;
       }

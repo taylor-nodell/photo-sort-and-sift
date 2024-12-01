@@ -2,8 +2,8 @@ import { useEffect } from 'react';
 import { ImagePackage } from 'main/types';
 
 import { useApp } from '../context/app-context';
-import SelectFolder from '../select-folder/SelectFolder';
 import BigPreview from '../big-preview/BigPreview';
+import { CreateSubjectKeeperModal } from '../CreateSubjectKeeperModal/CreateSubjectKeeperModal';
 
 import './Layout.css';
 import useKeyHandlers from './useKeyHandlers';
@@ -17,6 +17,7 @@ const Layout = () => {
     loading,
     setSelectedImage,
     selectedImage,
+    isCreatingSubjectKeeper,
   } = useApp();
 
   useEffect(() => {
@@ -58,6 +59,7 @@ const Layout = () => {
             </button>
           ))}
       </div>
+      {isCreatingSubjectKeeper && <CreateSubjectKeeperModal />}
     </div>
   );
 };

@@ -18,7 +18,14 @@ export interface ImagePackage {
 }
 
 export interface ExtendedImagePackage extends ImagePackage {
-  isKeeper: boolean;
+  //isKeeper: boolean;
+}
+
+export interface SubjectKeeper {
+  id: string;
+  name: string;
+  imagePackages: ImagePackage[];
+  iNatUrl?: string;
 }
 
 const useApp = () => {
@@ -26,6 +33,10 @@ const useApp = () => {
   const [loading, setLoading] = useState(false);
   const [images, setImages] = useState<ExtendedImagePackage[]>([]);
   const [selectedImage, setSelectedImage] = useState<ExtendedImagePackage>();
+  const [subjectKeepers, setSubjectKeepers] = useState<SubjectKeeper[]>([]);
+  const [currentSubjectKeeper, setCurrentSubjectKeeper] =
+    useState<SubjectKeeper>();
+  const [isCreatingSubjectKeeper, setIsCreatingSubjectKeeper] = useState(true);
 
   const addImages = (moreImages: ImagePackage[]) => {
     const extendedImages = moreImages.map((image) => ({
@@ -63,6 +74,13 @@ const useApp = () => {
     }
   };
 
+  const handleSpaceBarPress = () => {
+    // 1st time prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper
+    // Add the current image to the SubjectKeeper's imagePackages
+    // Subsequent times add the current image to the SubjectKeeper's imagePackages
+    // Until user presses N key to create a new SubjectKeeper
+  };
+
   const changeFolder = () => {
     setLoading(true);
     window.electron.ipcRenderer.sendMessage('folder-selection', [
@@ -81,6 +99,12 @@ const useApp = () => {
     selectedImage,
     setSelectedImage,
     setImages,
+    isCreatingSubjectKeeper,
+    setIsCreatingSubjectKeeper,
+    subjectKeepers,
+    setSubjectKeepers,
+    currentSubjectKeeper,
+    setCurrentSubjectKeeper,
   };
 };
 

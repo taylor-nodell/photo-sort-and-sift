@@ -4,9 +4,16 @@ import { useApp } from '../context/app-context';
 const useKeyHandlers = () => {
   const { images, setSelectedImage, setImages, selectedImage } = useApp();
 
+  const handleSpaceBarPress = () => {
+    // 1st time prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper
+    // Add the current image to the SubjectKeeper's imagePackages
+    // Subsequent times add the current image to the SubjectKeeper's imagePackages
+    // Until user presses N key to create a new SubjectKeeper
+  };
+
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      e.preventDefault();
+      // e.preventDefault();
 
       const index = images.findIndex((image) => image.id === selectedImage?.id);
       if (index === -1) return;
@@ -49,7 +56,7 @@ const useKeyHandlers = () => {
           });
           break;
         case 'Enter':
-          console.log(images.filter((i) => i.isKeeper));
+          //console.log(images.filter((i) => i.isKeeper));
           break;
         default:
           break;

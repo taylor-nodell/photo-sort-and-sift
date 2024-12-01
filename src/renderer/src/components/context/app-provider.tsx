@@ -17,10 +17,6 @@ export interface ImagePackage {
   orientation: number;
 }
 
-export interface ExtendedImagePackage extends ImagePackage {
-  //isKeeper: boolean;
-}
-
 export interface SubjectKeeper {
   id: string;
   name: string;
@@ -31,12 +27,12 @@ export interface SubjectKeeper {
 const useApp = () => {
   const [folderPath, setFolderPath] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState<ExtendedImagePackage[]>([]);
-  const [selectedImage, setSelectedImage] = useState<ExtendedImagePackage>();
+  const [images, setImages] = useState<ImagePackage[]>([]);
+  const [selectedImage, setSelectedImage] = useState<ImagePackage>();
   const [subjectKeepers, setSubjectKeepers] = useState<SubjectKeeper[]>([]);
   const [currentSubjectKeeper, setCurrentSubjectKeeper] =
-    useState<SubjectKeeper>();
-  const [isCreatingSubjectKeeper, setIsCreatingSubjectKeeper] = useState(true);
+    useState<SubjectKeeper | null>(null);
+  const [isCreatingSubjectKeeper, setIsCreatingSubjectKeeper] = useState(false);
 
   const addImages = (moreImages: ImagePackage[]) => {
     const extendedImages = moreImages.map((image) => ({
@@ -60,10 +56,7 @@ const useApp = () => {
         }
       });
       window.electron.ipcRenderer.on('processedImages', (args) => {
-        const castedImages = (args as ImagePackage[]).map((image) => ({
-          ...image,
-          isKeeper: false,
-        }));
+        const castedImages = args as ImagePackage[];
 
         if (args) {
           setImages(castedImages ?? []);

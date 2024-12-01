@@ -2,10 +2,27 @@ import { useEffect } from 'react';
 import { useApp } from '../context/app-context';
 
 const useKeyHandlers = () => {
-  const { images, setSelectedImage, setImages, selectedImage } = useApp();
+  const {
+    images,
+    setSelectedImage,
+    setImages,
+    selectedImage,
+    isCreatingSubjectKeeper,
+    setIsCreatingSubjectKeeper,
+    setCurrentSubjectKeeper,
+    subjectKeepers,
+    currentSubjectKeeper,
+  } = useApp();
 
   const handleSpaceBarPress = () => {
+    console.log('Space bar pressed');
     // 1st time prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper
+    if (!isCreatingSubjectKeeper && currentSubjectKeeper === null) {
+      console.log(
+        'Prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper'
+      );
+      setIsCreatingSubjectKeeper(true);
+    }
     // Add the current image to the SubjectKeeper's imagePackages
     // Subsequent times add the current image to the SubjectKeeper's imagePackages
     // Until user presses N key to create a new SubjectKeeper
@@ -42,21 +59,10 @@ const useKeyHandlers = () => {
           });
           break;
         case ' ':
-          setImages((prevImages) => {
-            return prevImages.map((image) => {
-              if (image.id === selectedImage?.id) {
-                return {
-                  ...image,
-                  isKeeper: true,
-                  markedForDeletion: false,
-                };
-              }
-              return image;
-            });
-          });
+          handleSpaceBarPress();
           break;
         case 'Enter':
-          //console.log(images.filter((i) => i.isKeeper));
+          console.log(subjectKeepers);
           break;
         default:
           break;

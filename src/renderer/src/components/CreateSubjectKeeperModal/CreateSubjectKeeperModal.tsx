@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import './CreateSubjectKeeperModal.css'; // Add your modal styles here
 import { useApp } from '../context/app-context';
 
@@ -10,7 +10,14 @@ export const CreateSubjectKeeperModal = () => {
   } = useApp();
 
   const [newSubjectKeeperName, setNewSubjectKeeperName] = useState('');
-  console.log('Current Input Value:', newSubjectKeeperName);
+
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
 
   const handleCreateNewSubjectKeeper = () => {
     // Create a new subject keeper
@@ -32,16 +39,18 @@ export const CreateSubjectKeeperModal = () => {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h1>New Subject</h1>
-        {/* Text field for entering name of the subject keeper */}
+        <h1 id="new-subject-header">New Subject</h1>
         <input
+          aria-labelledby="new-subject-header"
           type="text"
           placeholder="Name of Subject"
           value={newSubjectKeeperName}
           onChange={(e) => setNewSubjectKeeperName(e.target.value)}
+          ref={inputRef}
         />
-        {/* Button for creating a new subject keeper */}
-        <button onClick={handleCreateNewSubjectKeeper}>Create</button>
+        <button type="button" onClick={handleCreateNewSubjectKeeper}>
+          Create
+        </button>
       </div>
     </div>
   );

@@ -7,7 +7,8 @@ import { CreateSubjectKeeperModal } from '../CreateSubjectKeeperModal/CreateSubj
 
 import './Layout.css';
 import useKeyHandlers from './useKeyHandlers';
-import { ExtendedImagePackage } from '../context/app-provider';
+import { CurrentSubjectKeeper } from '../CurrentSubjectKeeper/CurrentSubjectKeeper';
+import { KeeperLog } from '../KeeperLog/KeeperLog';
 
 const Layout = () => {
   const {
@@ -26,14 +27,16 @@ const Layout = () => {
 
   useKeyHandlers();
 
-  const handleImageClick = (imagePackage: ExtendedImagePackage) => {
+  const handleImageClick = (imagePackage: ImagePackage) => {
     setSelectedImage(imagePackage);
   };
 
   return (
     <div className="main">
       <div className="top">
+        <CurrentSubjectKeeper />
         <BigPreview />
+        <KeeperLog />
       </div>
       <div className="bottom">
         <div>Path: {folderPath}</div>

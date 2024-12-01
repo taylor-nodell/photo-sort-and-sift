@@ -20,6 +20,8 @@
   flex: 1;
   border-top: 5px solid;
   width: 100vw;
+  overflow-x: scroll;
+  overflow-y: hidden
 }
 
 .selected {

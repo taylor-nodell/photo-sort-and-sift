@@ -1,6 +1,7 @@
 import { useApp } from '../context/app-context';
 import './SelectFolder.css';
 
+// @TODO: This component is no longer used, remove it
 const SelectFolder = () => {
   const { folderPath, changeFolder } = useApp();
 

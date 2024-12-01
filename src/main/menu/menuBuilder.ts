@@ -76,7 +76,6 @@ export default class MenuBuilder {
           },
         },
         { type: 'separator' },
-        { role: 'quit' }, // Standard role for quitting the application
       ],
     };
 
@@ -227,99 +226,72 @@ export default class MenuBuilder {
     ];
   }
 
-  buildDefaultTemplate() {
-    const templateDefault = [
+  buildDefaultTemplate(): MenuItemConstructorOptions[] {
+    return [
       {
-        label: '&File',
+        label: 'File',
         submenu: [
           {
-            label: '&Open',
-            accelerator: 'Ctrl+O',
-          },
-          {
-            label: '&Close',
-            accelerator: 'Ctrl+W',
-            click: () => {
-              this.mainWindow.close();
+            label: 'Select Folder',
+            accelerator: 'CmdOrCtrl+O',
+            click: async () => {
+              const result = await dialog.showOpenDialog(this.mainWindow, {
+                properties: ['openDirectory'],
+              });
+
+              if (result.filePaths.length > 0) {
+                const selectedFolder = result.filePaths[0];
+                this.mainWindow.webContents.send(
+                  'folder-selected',
+                  selectedFolder
+                );
+                this.mainWindow.setTitle(`Photo Sorter - ${selectedFolder}`);
+              }
             },
+          },
+          { type: 'separator' },
+        ],
+      },
+      {
+        label: 'Edit',
+        submenu: [
+          { label: 'Undo', accelerator: 'CmdOrCtrl+Z', role: 'undo' },
+          { label: 'Redo', accelerator: 'Shift+CmdOrCtrl+Z', role: 'redo' },
+          { type: 'separator' },
+          { label: 'Cut', accelerator: 'CmdOrCtrl+X', role: 'cut' },
+          { label: 'Copy', accelerator: 'CmdOrCtrl+C', role: 'copy' },
+          { label: 'Paste', accelerator: 'CmdOrCtrl+V', role: 'paste' },
+          {
+            label: 'Select All',
+            accelerator: 'CmdOrCtrl+A',
+            role: 'selectAll',
           },
         ],
       },
       {
-        label: '&View',
-        submenu:
-          process.env.NODE_ENV === 'development' ||
-          process.env.DEBUG_PROD === 'true'
-            ? [
-                {
-                  label: '&Reload',
-                  accelerator: 'Ctrl+R',
-                  click: () => {
-                    this.mainWindow.webContents.reload();
-                  },
-                },
-                {
-                  label: 'Toggle &Full Screen',
-                  accelerator: 'F11',
-                  click: () => {
-                    this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen()
-                    );
-                  },
-                },
-                {
-                  label: 'Toggle &Developer Tools',
-                  accelerator: 'Alt+Ctrl+I',
-                  click: () => {
-                    this.mainWindow.webContents.toggleDevTools();
-                  },
-                },
-              ]
-            : [
-                {
-                  label: 'Toggle &Full Screen',
-                  accelerator: 'F11',
-                  click: () => {
-                    this.mainWindow.setFullScreen(
-                      !this.mainWindow.isFullScreen()
-                    );
-                  },
-                },
-              ],
+        label: 'View',
+        submenu: [
+          { label: 'Reload', accelerator: 'CmdOrCtrl+R', role: 'reload' },
+          {
+            label: 'Toggle Full Screen',
+            accelerator: 'F11',
+            role: 'togglefullscreen',
+          },
+          {
+            label: 'Toggle Developer Tools',
+            accelerator: 'Alt+CmdOrCtrl+I',
+            role: 'toggleDevTools',
+          },
+        ],
       },
       {
-        label: 'Help',
+        label: 'Window',
+        role: 'window',
         submenu: [
-          {
-            label: 'Learn More',
-            click() {
-              shell.openExternal('https://electronjs.org');
-            },
-          },
-          {
-            label: 'Documentation',
-            click() {
-              shell.openExternal(
-                'https://github.com/electron/electron/tree/main/docs#readme'
-              );
-            },
-          },
-          {
-            label: 'Community Discussions',
-            click() {
-              shell.openExternal('https://www.electronjs.org/community');
-            },
-          },
-          {
-            label: 'Search Issues',
-            click() {
-              shell.openExternal('https://github.com/electron/electron/issues');
-            },
-          },
+          { label: 'Minimize', accelerator: 'CmdOrCtrl+M', role: 'minimize' },
+          { label: 'Close', accelerator: 'CmdOrCtrl+W', role: 'close' },
         ],
       },
     ];
-
-    return templateDefault;
   }
 }

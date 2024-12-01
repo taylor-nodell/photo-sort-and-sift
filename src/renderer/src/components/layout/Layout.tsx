@@ -35,7 +35,6 @@ const Layout = () => {
         <BigPreview />
       </div>
       <div className="bottom">
-        <SelectFolder />
         <div>Path: {folderPath}</div>
         {loading && 'Loading...'}
         {!loading && images.length === 0 && 'No jpg images'}

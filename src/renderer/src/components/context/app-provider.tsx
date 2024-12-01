@@ -17,16 +17,25 @@ export interface ImagePackage {
   orientation: number;
 }
 
+export interface ExtendedImagePackage extends ImagePackage {
+  isKeeper: boolean;
+}
+
 const useApp = () => {
   const [folderPath, setFolderPath] = useState<string | undefined>();
   const [loading, setLoading] = useState(false);
-  const [images, setImages] = useState<ImagePackage[]>([]);
-  const [selectedImage, setSelectedImage] = useState<ImagePackage>();
+  const [images, setImages] = useState<ExtendedImagePackage[]>([]);
+  const [selectedImage, setSelectedImage] = useState<ExtendedImagePackage>();
 
   const addImages = (moreImages: ImagePackage[]) => {
-    setImages((prevImages) => {
-      return [...prevImages, ...moreImages].filter(outDuplicatesById);
-    });
+    const extendedImages = moreImages.map((image) => ({
+      ...image,
+      isKeeper: false,
+    }));
+
+    setImages((prevImages) =>
+      [...prevImages, ...extendedImages].filter(outDuplicatesById)
+    );
   };
 
   const ensureFolderPath = () => {
@@ -40,11 +49,13 @@ const useApp = () => {
         }
       });
       window.electron.ipcRenderer.on('processedImages', (args) => {
-        const castedImages = args as ImagePackage[];
+        const castedImages = (args as ImagePackage[]).map((image) => ({
+          ...image,
+          isKeeper: false,
+        }));
 
         if (args) {
           setImages(castedImages ?? []);
-
           setSelectedImage(castedImages[0]);
         }
         setLoading(false);

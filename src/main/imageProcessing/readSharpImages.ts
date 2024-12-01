@@ -1,5 +1,5 @@
 import { readFile } from 'fs';
-import { SharpOutput, ReadingSharpData } from './types';
+import { SharpOutput, ReadingSharpData } from '../types';
 
 export const readSharpImageData = async (
   sharpOutput: SharpOutput

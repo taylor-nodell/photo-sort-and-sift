@@ -7,6 +7,7 @@ import BigPreview from '../big-preview/BigPreview';
 
 import './Layout.css';
 import useKeyHandlers from './useKeyHandlers';
+import { ExtendedImagePackage } from '../context/app-provider';
 
 const Layout = () => {
   const {
@@ -24,7 +25,7 @@ const Layout = () => {
 
   useKeyHandlers();
 
-  const handleImageClick = (imagePackage: ImagePackage) => {
+  const handleImageClick = (imagePackage: ExtendedImagePackage) => {
     setSelectedImage(imagePackage);
   };
 

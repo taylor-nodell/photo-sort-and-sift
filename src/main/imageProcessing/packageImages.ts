@@ -1,4 +1,4 @@
-import { ReadingSharpData, ImagePackage, ImageType } from './types';
+import { ReadingSharpData, ImagePackage, ImageType } from '../types';
 
 export const formatImagesToPackages = (unsortedImages: ReadingSharpData[]) => {
   // Map containing all the images in the package

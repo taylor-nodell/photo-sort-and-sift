@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './CreateSubjectKeeperModal.css'; // Add your modal styles here
 import { useApp } from '../context/app-context';
 
@@ -6,7 +6,8 @@ export const CreateSubjectKeeperModal = () => {
   const {
     setIsCreatingSubjectKeeper,
     setSubjectKeepers,
-    setCurrentSubjectKeeper,
+    setCurrentSubjectKeeperId,
+    selectedImage,
   } = useApp();
 
   const [newSubjectKeeperName, setNewSubjectKeeperName] = useState('');
@@ -20,19 +21,22 @@ export const CreateSubjectKeeperModal = () => {
   }, []);
 
   const handleCreateNewSubjectKeeper = () => {
+    if (!newSubjectKeeperName) return;
+    if (!selectedImage) return;
+
     // Create a new subject keeper
     // set the current subject keeper
     // setisCreatingSubjectKeeper to false
     const newSubjectKeeper = {
       id: Math.random().toString(), // @todo: use a better id generator
       name: newSubjectKeeperName,
-      imagePackages: [],
+      imagePackages: [selectedImage],
     };
     setSubjectKeepers((prevSubjectKeepers) => [
       ...prevSubjectKeepers,
       newSubjectKeeper,
     ]);
-    setCurrentSubjectKeeper(newSubjectKeeper);
+    setCurrentSubjectKeeperId(newSubjectKeeper.id);
     setIsCreatingSubjectKeeper(false);
   };
 
@@ -48,7 +52,11 @@ export const CreateSubjectKeeperModal = () => {
           onChange={(e) => setNewSubjectKeeperName(e.target.value)}
           ref={inputRef}
         />
-        <button type="button" onClick={handleCreateNewSubjectKeeper}>
+        <button
+          type="button"
+          onClick={handleCreateNewSubjectKeeper}
+          disabled={!newSubjectKeeperName || !selectedImage}
+        >
           Create
         </button>
       </div>

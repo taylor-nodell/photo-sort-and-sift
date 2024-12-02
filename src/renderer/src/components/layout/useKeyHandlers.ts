@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { useApp } from '../context/app-context';
+import { SubjectKeeper } from '../context/app-provider';
 
 const useKeyHandlers = () => {
   const {
@@ -9,23 +10,44 @@ const useKeyHandlers = () => {
     selectedImage,
     isCreatingSubjectKeeper,
     setIsCreatingSubjectKeeper,
-    setCurrentSubjectKeeper,
     subjectKeepers,
-    currentSubjectKeeper,
+    setSubjectKeepers,
+    currentSubjectKeeperId,
   } = useApp();
 
   const handleSpaceBarPress = () => {
-    console.log('Space bar pressed');
-    // 1st time prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper
-    if (!isCreatingSubjectKeeper && currentSubjectKeeper === null) {
-      console.log(
-        'Prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper'
-      );
+    // START HERE: Handle ending this subject keeper and creating a new one
+    // 2. Create a way to show image file names, not entire path in Keepers list.
+    // 3. Keep UI from extending when adding subject keepers
+
+    // No current keeper: Prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper
+    if (!isCreatingSubjectKeeper && !currentSubjectKeeperId) {
       setIsCreatingSubjectKeeper(true);
+    } else {
+      // Add the current image to the SubjectKeeper's array of imagePackages
+      setSubjectKeepers((prevKeepers: SubjectKeeper[]) => {
+        // Check if the image is already added to the current SubjectKeeper
+        const isAlreadyAdded = prevKeepers
+          .find((keeper) => keeper.id === currentSubjectKeeperId)
+          ?.imagePackages.find((image) => image.id === selectedImage?.id);
+
+        // If there is a current SubjectKeeper, a selected image, and the image is not already added to the current SubjectKeeper
+        if (currentSubjectKeeperId && selectedImage && !isAlreadyAdded) {
+          return prevKeepers.map((keeper) => {
+            if (keeper.id === currentSubjectKeeperId) {
+              return {
+                ...keeper,
+                imagePackages: [...keeper.imagePackages, selectedImage],
+              };
+            }
+            return keeper;
+          });
+        }
+        return prevKeepers;
+      });
+
+      // Until user presses N key to create a new SubjectKeeper
     }
-    // Add the current image to the SubjectKeeper's imagePackages
-    // Subsequent times add the current image to the SubjectKeeper's imagePackages
-    // Until user presses N key to create a new SubjectKeeper
   };
 
   useEffect(() => {

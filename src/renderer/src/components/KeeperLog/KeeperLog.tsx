@@ -4,6 +4,13 @@ import './KeeperLog.css';
 export const KeeperLog = () => {
   const { subjectKeepers } = useApp();
 
+  const shortenedJpegPath = (jpegPath: string) => {
+    // Show everything past the last slash
+    const lastSlash = jpegPath.lastIndexOf('/');
+    const shortenedPath = jpegPath.slice(lastSlash + 1);
+    return shortenedPath;
+  };
+
   return (
     <div className="keeper-log">
       <p>Keepers </p>
@@ -12,7 +19,9 @@ export const KeeperLog = () => {
           <p>{keeper.name}</p>
           <p>
             {keeper.imagePackages.map((imagePackage) => (
-              <span key={imagePackage.id}>{imagePackage.jpegPath}</span>
+              <div key={imagePackage.id}>
+                {shortenedJpegPath(imagePackage.jpegPath)}
+              </div>
             ))}
           </p>
         </div>

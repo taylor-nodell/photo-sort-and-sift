@@ -40,6 +40,12 @@ export const CreateSubjectKeeperModal = () => {
     setIsCreatingSubjectKeeper(false);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'Enter') {
+      handleCreateNewSubjectKeeper();
+    }
+  };
+
   return (
     <div className="modal-overlay">
       <div className="modal-content">
@@ -50,10 +56,11 @@ export const CreateSubjectKeeperModal = () => {
           placeholder="Name of Subject"
           value={newSubjectKeeperName}
           onChange={(e) => setNewSubjectKeeperName(e.target.value)}
+          onKeyDown={handleKeyDown}
           ref={inputRef}
         />
         <button
-          type="button"
+          type="submit"
           onClick={handleCreateNewSubjectKeeper}
           disabled={!newSubjectKeeperName || !selectedImage}
         >

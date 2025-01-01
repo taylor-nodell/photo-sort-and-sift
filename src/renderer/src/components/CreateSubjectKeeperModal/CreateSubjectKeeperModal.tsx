@@ -16,8 +16,15 @@ export const CreateSubjectKeeperModal = () => {
 
   useEffect(() => {
     if (inputRef.current) {
-      inputRef.current.focus();
+      // Delay focusing the input to avoid the initial 'n' key being typed - @todo: find a better solution
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 50);
+      return () => clearTimeout(timer); // Cleanup the timeout
     }
+
+    // Return a no-op cleanup function when the condition is not met
+    return () => {};
   }, []);
 
   const handleCreateNewSubjectKeeper = () => {

@@ -13,12 +13,13 @@ const useKeyHandlers = () => {
     subjectKeepers,
     setSubjectKeepers,
     currentSubjectKeeperId,
+    setCurrentSubjectKeeperId,
   } = useApp();
 
   const handleSpaceBarPress = () => {
     // START HERE: Handle ending this subject keeper and creating a new one
-    // 2. Create a way to show image file names, not entire path in Keepers list.
-    // 3. Keep UI from extending when adding subject keepers
+    // 1. Keep UI from extending when adding subject keepers
+    // 2. Prevent pressing n to create a new keeper on top the same current keeper
 
     // No current keeper: Prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper
     if (!isCreatingSubjectKeeper && !currentSubjectKeeperId) {
@@ -82,6 +83,16 @@ const useKeyHandlers = () => {
           break;
         case ' ':
           handleSpaceBarPress();
+          break;
+        case 'n':
+          setIsCreatingSubjectKeeper(true);
+          break;
+        case 'x':
+          setIsCreatingSubjectKeeper(true);
+          break;
+        case 'Escape':
+          setCurrentSubjectKeeperId('');
+          setIsCreatingSubjectKeeper(false);
           break;
         case 'Enter':
           console.log(subjectKeepers);

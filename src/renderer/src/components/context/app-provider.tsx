@@ -10,7 +10,6 @@ export interface ImageData {
 
 export interface ImagePackage {
   id: string;
-  // @todo - add short path for display
   jpegPath: string;
   nefPath?: string;
   thumbnail: ImageData;

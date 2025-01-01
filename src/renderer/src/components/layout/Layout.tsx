@@ -48,14 +48,13 @@ const Layout = () => {
             <button
               key={image.thumbnail.pathName}
               onClick={() => handleImageClick(image)}
-              className={`btn ${
-                selectedImage?.id === image.id ? 'selected' : ''
-              }`}
+              className="btn"
               type="button"
             >
               <img
                 width={200}
                 height={200}
+                className={selectedImage?.id === image.id ? 'selected' : ''}
                 src={`data:image/jpeg;charset=utf-8;base64,${image.thumbnail.data}`}
                 alt={image.thumbnail.pathName}
               />

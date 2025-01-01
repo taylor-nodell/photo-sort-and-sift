@@ -1,0 +1,5 @@
+.current-subject-keeper {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}

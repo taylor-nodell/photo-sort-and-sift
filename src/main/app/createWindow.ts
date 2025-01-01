@@ -6,8 +6,8 @@ import { resolveHtmlPath } from '../util';
 export const createMainWindow = (): BrowserWindow => {
   const mainWindow = new BrowserWindow({
     show: false,
-    width: 1024,
-    height: 728,
+    width: 1200,
+    height: 1100,
     icon: resolveHtmlPath('icon.png'),
     webPreferences: {
       sandbox: false,

@@ -86,11 +86,7 @@ const useKeyHandlers = () => {
           handleSpaceBarPress();
           break;
         case 'n':
-          if (
-            !isCreatingSubjectKeeper &&
-            // currentSubjectKeeper does not have the selectedImage's id in its imagePackages - @todo: refactor this to use the same logic as the spacebar
-            !isImageAlreadyAdded()
-          ) {
+          if (!isCreatingSubjectKeeper && !isImageAlreadyAdded()) {
             setIsCreatingSubjectKeeper(true);
           }
           break;

@@ -19,9 +19,9 @@ export const KeeperLog = () => {
           <p>{keeper.name}</p>
           <p>
             {keeper.imagePackages.map((imagePackage) => (
-              <div key={imagePackage.id}>
+              <p key={imagePackage.id}>
                 {shortenedJpegPath(imagePackage.jpegPath)}
-              </div>
+              </p>
             ))}
           </p>
         </div>

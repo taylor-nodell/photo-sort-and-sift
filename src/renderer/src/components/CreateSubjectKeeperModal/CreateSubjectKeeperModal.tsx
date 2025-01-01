@@ -43,6 +43,7 @@ export const CreateSubjectKeeperModal = () => {
       ...prevSubjectKeepers,
       newSubjectKeeper,
     ]);
+    console.log('newSubjectKeeper.id', newSubjectKeeper.id);
     setCurrentSubjectKeeperId(newSubjectKeeper.id);
     setIsCreatingSubjectKeeper(false);
   };

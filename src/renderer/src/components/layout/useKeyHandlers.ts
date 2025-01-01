@@ -13,27 +13,32 @@ const useKeyHandlers = () => {
     subjectKeepers,
     setSubjectKeepers,
     currentSubjectKeeperId,
-    setCurrentSubjectKeeperId,
   } = useApp();
 
-  const handleSpaceBarPress = () => {
-    // START HERE: Handle ending this subject keeper and creating a new one
-    // 1. Keep UI from extending when adding subject keepers
-    // 2. Prevent pressing n to create a new keeper on top the same current keeper
+  const isImageAlreadyAdded = () => {
+    const imagesAlreadyAddedMap = new Map<string, boolean>();
+    subjectKeepers.forEach((keeper) => {
+      keeper.imagePackages.forEach((image) => {
+        imagesAlreadyAddedMap.set(image.id, true);
+      });
+    });
+    const result = imagesAlreadyAddedMap.get(selectedImage?.id ?? '');
+    return !!result;
+  };
 
-    // No current keeper: Prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper
-    if (!isCreatingSubjectKeeper && !currentSubjectKeeperId) {
+  const handleSpaceBarPress = () => {
+    if (
+      !isCreatingSubjectKeeper &&
+      !currentSubjectKeeperId &&
+      !isImageAlreadyAdded()
+    ) {
+      // No current keeper: Prompt a dialog to enter a new SubjectKeeper name and create a SubjectKeeper
       setIsCreatingSubjectKeeper(true);
     } else {
       // Add the current image to the SubjectKeeper's array of imagePackages
       setSubjectKeepers((prevKeepers: SubjectKeeper[]) => {
-        // Check if the image is already added to the current SubjectKeeper
-        const isAlreadyAdded = prevKeepers
-          .find((keeper) => keeper.id === currentSubjectKeeperId)
-          ?.imagePackages.find((image) => image.id === selectedImage?.id);
-
         // If there is a current SubjectKeeper, a selected image, and the image is not already added to the current SubjectKeeper
-        if (currentSubjectKeeperId && selectedImage && !isAlreadyAdded) {
+        if (currentSubjectKeeperId && selectedImage && !isImageAlreadyAdded()) {
           return prevKeepers.map((keeper) => {
             if (keeper.id === currentSubjectKeeperId) {
               return {
@@ -46,15 +51,11 @@ const useKeyHandlers = () => {
         }
         return prevKeepers;
       });
-
-      // Until user presses N key to create a new SubjectKeeper
     }
   };
 
   useEffect(() => {
     const handleKeyPress = (e: KeyboardEvent) => {
-      // e.preventDefault();
-
       const index = images.findIndex((image) => image.id === selectedImage?.id);
       if (index === -1) return;
 
@@ -85,14 +86,22 @@ const useKeyHandlers = () => {
           handleSpaceBarPress();
           break;
         case 'n':
-          setIsCreatingSubjectKeeper(true);
-          break;
-        case 'x':
-          setIsCreatingSubjectKeeper(true);
+          if (
+            !isCreatingSubjectKeeper &&
+            // currentSubjectKeeper does not have the selectedImage's id in its imagePackages - @todo: refactor this to use the same logic as the spacebar
+            !isImageAlreadyAdded()
+          ) {
+            setIsCreatingSubjectKeeper(true);
+          }
           break;
         case 'Escape':
-          setCurrentSubjectKeeperId('');
-          setIsCreatingSubjectKeeper(false);
+          console.log(
+            'Escape, isCreatingSubjectKeeper:',
+            isCreatingSubjectKeeper
+          );
+          if (isCreatingSubjectKeeper) {
+            setIsCreatingSubjectKeeper(false);
+          }
           break;
         case 'Enter':
           console.log(subjectKeepers);
@@ -107,7 +116,7 @@ const useKeyHandlers = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [selectedImage, images]);
+  }, [selectedImage, images, isCreatingSubjectKeeper, subjectKeepers]);
 };
 
 export default useKeyHandlers;

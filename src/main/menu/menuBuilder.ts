@@ -71,7 +71,6 @@ export default class MenuBuilder {
                 'folder-selected',
                 selectedFolder
               );
-              this.mainWindow.setTitle(`Photo Sorter - ${selectedFolder}`);
             }
           },
         },

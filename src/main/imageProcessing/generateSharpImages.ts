@@ -81,8 +81,6 @@ export const readExistingImageData = async (
           existingImage.sharpFilePath
         ).metadata();
 
-        console.log('Existing photo metadata: ', metadata);
-
         // If any of the metadata is undefined, reject
         if (
           !metadata ||

@@ -21,6 +21,10 @@ export const setupIpcHandlers = (mainWindow: BrowserWindow) => {
       }
     }
     if (selectedFolder) {
+      const window = BrowserWindow.getFocusedWindow();
+      if (window) {
+        window.setTitle(`Photo Sort N Sift - ${selectedFolder}`); // Update the app window's title
+      }
       event.reply('folder-selection', selectedFolder);
       // eslint-disable-next-line @typescript-eslint/no-use-before-define
       sendImagesOnFolder(event, selectedFolder);

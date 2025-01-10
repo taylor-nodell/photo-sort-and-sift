@@ -39,7 +39,6 @@ const Layout = () => {
         <KeeperLog />
       </div>
       <div className="bottom">
-        <div>Path: {folderPath}</div>
         {loading && 'Loading...'}
         {!loading && images.length === 0 && 'No jpg images'}
         {images

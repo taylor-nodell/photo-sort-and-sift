@@ -5,8 +5,11 @@ export const KeeperLog = () => {
   const { subjectKeepers } = useApp();
 
   const shortenedJpegPath = (jpegPath: string) => {
-    // Show everything past the last slash
-    const lastSlash = jpegPath.lastIndexOf('/');
+    // Show everything past the last \ or / slash
+    const lastSlash = Math.max(
+      jpegPath.lastIndexOf('/'),
+      jpegPath.lastIndexOf('\\')
+    );
     const shortenedPath = jpegPath.slice(lastSlash + 1);
     return shortenedPath;
   };

@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { ImagePackage } from 'main/types';
 
 import { useApp } from '../context/app-context';
@@ -14,7 +14,6 @@ const Layout = () => {
   const {
     images,
     ensureFolderPath,
-    folderPath,
     loading,
     setSelectedImage,
     selectedImage,
@@ -24,6 +23,21 @@ const Layout = () => {
   useEffect(() => {
     ensureFolderPath();
   }, []);
+
+  const selectedImageRef = useRef<HTMLButtonElement | null>(null);
+
+  useEffect(() => {
+    if (selectedImageRef.current) {
+      // timeout hack: scrollIntoView may be called before the element exists in the DOM.
+      setTimeout(() => {
+        selectedImageRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center',
+        });
+      }, 0);
+    }
+  }, [selectedImage]);
 
   useKeyHandlers();
 
@@ -39,7 +53,6 @@ const Layout = () => {
         <KeeperLog />
       </div>
       <div className="bottom">
-        <div>Path: {folderPath}</div>
         {loading && 'Loading...'}
         {!loading && images.length === 0 && 'No jpg images'}
         {images
@@ -50,6 +63,13 @@ const Layout = () => {
               onClick={() => handleImageClick(image)}
               className="btn"
               type="button"
+              ref={
+                selectedImage?.id === image.id
+                  ? (el) => {
+                      selectedImageRef.current = el;
+                    }
+                  : null
+              }
             >
               <img
                 width={200}

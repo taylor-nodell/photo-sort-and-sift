@@ -65,7 +65,9 @@ const Layout = () => {
               type="button"
               ref={
                 selectedImage?.id === image.id
-                  ? (el) => (selectedImageRef.current = el)
+                  ? (el) => {
+                      selectedImageRef.current = el;
+                    }
                   : null
               }
             >

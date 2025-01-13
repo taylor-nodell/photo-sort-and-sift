@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import './CreateSubjectKeeperModal.css'; // Add your modal styles here
+import './CreateSubjectKeeperModal.css';
 import { useApp } from '../context/app-context';
 
 export const CreateSubjectKeeperModal = () => {

@@ -30,6 +30,9 @@ export const setupIpcHandlers = (mainWindow: BrowserWindow) => {
       sendImagesOnFolder(event, selectedFolder);
     }
   });
+  ipcMain.on('sort-keepers', async (event, args) => {
+    console.log('sort-keepers', args);
+  });
 };
 
 const sendImagesOnFolder = async (

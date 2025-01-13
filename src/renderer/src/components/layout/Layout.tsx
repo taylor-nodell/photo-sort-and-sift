@@ -9,6 +9,7 @@ import './Layout.css';
 import useKeyHandlers from './useKeyHandlers';
 import { CurrentSubjectKeeper } from '../CurrentSubjectKeeper/CurrentSubjectKeeper';
 import { KeeperLog } from '../KeeperLog/KeeperLog';
+import { ReviewScreen } from '../ReviewScreen/ReviewScreen';
 
 const Layout = () => {
   const {
@@ -18,6 +19,7 @@ const Layout = () => {
     setSelectedImage,
     selectedImage,
     isCreatingSubjectKeeper,
+    isShowingReviewScreen,
   } = useApp();
 
   useEffect(() => {
@@ -82,6 +84,7 @@ const Layout = () => {
           ))}
       </div>
       {isCreatingSubjectKeeper && <CreateSubjectKeeperModal />}
+      {isShowingReviewScreen && <ReviewScreen />}
     </div>
   );
 };

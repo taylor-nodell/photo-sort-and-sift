@@ -13,6 +13,8 @@ const useKeyHandlers = () => {
     subjectKeepers,
     setSubjectKeepers,
     currentSubjectKeeperId,
+    setCurrentSubjectKeeperId,
+    setIsShowingReviewScreen,
   } = useApp();
 
   const isImageAlreadyAdded = () => {
@@ -91,16 +93,16 @@ const useKeyHandlers = () => {
           }
           break;
         case 'Escape':
-          console.log(
-            'Escape, isCreatingSubjectKeeper:',
-            isCreatingSubjectKeeper
-          );
           if (isCreatingSubjectKeeper) {
             setIsCreatingSubjectKeeper(false);
           }
+          setCurrentSubjectKeeperId(undefined);
           break;
         case 'Enter':
           console.log(subjectKeepers);
+          if (e.shiftKey) {
+            setIsShowingReviewScreen(true);
+          }
           break;
         default:
           break;

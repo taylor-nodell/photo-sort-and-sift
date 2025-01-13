@@ -1,0 +1,21 @@
+.review-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .review-modal-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    color: black;
+    width: 90%;
+    height: 90%;
+  }
+  

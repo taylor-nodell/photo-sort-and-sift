@@ -33,6 +33,7 @@ const useApp = () => {
   const [currentSubjectKeeperId, setCurrentSubjectKeeperId] =
     useState<string>();
   const [isCreatingSubjectKeeper, setIsCreatingSubjectKeeper] = useState(false);
+  const [isShowingReviewScreen, setIsShowingReviewScreen] = useState(false);
 
   const addImages = (moreImages: ImagePackage[]) => {
     const extendedImages = moreImages.map((image) => ({
@@ -91,6 +92,8 @@ const useApp = () => {
     setSubjectKeepers,
     currentSubjectKeeperId,
     setCurrentSubjectKeeperId,
+    isShowingReviewScreen,
+    setIsShowingReviewScreen,
   };
 };
 

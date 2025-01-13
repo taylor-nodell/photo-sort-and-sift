@@ -14,6 +14,7 @@ const useKeyHandlers = () => {
     setSubjectKeepers,
     currentSubjectKeeperId,
     setCurrentSubjectKeeperId,
+    isShowingReviewScreen,
     setIsShowingReviewScreen,
   } = useApp();
 
@@ -97,6 +98,9 @@ const useKeyHandlers = () => {
             setIsCreatingSubjectKeeper(false);
           }
           setCurrentSubjectKeeperId(undefined);
+          if (isShowingReviewScreen) {
+            setIsShowingReviewScreen(false);
+          }
           break;
         case 'Enter':
           console.log(subjectKeepers);

@@ -13,6 +13,7 @@ const useKeyHandlers = () => {
     subjectKeepers,
     setSubjectKeepers,
     currentSubjectKeeperId,
+    setCurrentSubjectKeeperId,
   } = useApp();
 
   const isImageAlreadyAdded = () => {
@@ -27,6 +28,8 @@ const useKeyHandlers = () => {
   };
 
   const handleSpaceBarPress = () => {
+    if (isCreatingSubjectKeeper) return;
+
     if (
       !isCreatingSubjectKeeper &&
       !currentSubjectKeeperId &&
@@ -97,7 +100,10 @@ const useKeyHandlers = () => {
           );
           if (isCreatingSubjectKeeper) {
             setIsCreatingSubjectKeeper(false);
+            break;
           }
+          setCurrentSubjectKeeperId(undefined);
+
           break;
         case 'Enter':
           console.log(subjectKeepers);
@@ -112,7 +118,13 @@ const useKeyHandlers = () => {
     return () => {
       window.removeEventListener('keydown', handleKeyPress);
     };
-  }, [selectedImage, images, isCreatingSubjectKeeper, subjectKeepers]);
+  }, [
+    selectedImage,
+    images,
+    isCreatingSubjectKeeper,
+    subjectKeepers,
+    currentSubjectKeeperId,
+  ]);
 };
 
 export default useKeyHandlers;

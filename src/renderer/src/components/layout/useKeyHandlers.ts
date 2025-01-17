@@ -100,10 +100,12 @@ const useKeyHandlers = () => {
             setIsCreatingSubjectKeeper(false);
             break;
           }
-          setCurrentSubjectKeeperId(undefined);
           if (isShowingReviewScreen) {
             setIsShowingReviewScreen(false);
+            break;
           }
+          setCurrentSubjectKeeperId(undefined);
+
           break;
         case 'Enter':
           console.log(subjectKeepers);

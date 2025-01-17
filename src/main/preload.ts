@@ -1,6 +1,10 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from 'electron';
 
-export type Channels = 'ipc-example' | 'folder-selection' | 'processedImages';
+export type Channels =
+  | 'ipc-example'
+  | 'folder-selection'
+  | 'processedImages'
+  | 'sort-keepers';
 
 contextBridge.exposeInMainWorld('electron', {
   ipcRenderer: {

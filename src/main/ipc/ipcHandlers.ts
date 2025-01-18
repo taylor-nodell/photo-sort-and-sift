@@ -32,8 +32,6 @@ export const setupIpcHandlers = (mainWindow: BrowserWindow) => {
     }
   });
   ipcMain.on('sort-keepers', async (event, args) => {
-    console.log('sort-keepers', args);
-    console.dir(args);
     sortAndSift(args);
   });
 };

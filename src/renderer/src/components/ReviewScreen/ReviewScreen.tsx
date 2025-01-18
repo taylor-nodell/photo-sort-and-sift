@@ -1,7 +1,7 @@
+import { useEffect, useRef } from 'react';
 import './ReviewScreen.css';
 import { useApp } from '../context/app-context';
 import { KeeperLog } from '../KeeperLog/KeeperLog';
-import { useEffect, useRef } from 'react';
 
 export const ReviewScreen = () => {
   const { subjectKeepers } = useApp();
@@ -10,6 +10,7 @@ export const ReviewScreen = () => {
 
   useEffect(() => {
     if (submitRef.current) {
+      // @todo: Seems like a hack
       // Delay focusing the input to avoid the initial 'Enter' being counted as the submit
       const timer = setTimeout(() => {
         submitRef.current?.focus();

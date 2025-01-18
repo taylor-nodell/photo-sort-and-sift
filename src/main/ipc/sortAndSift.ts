@@ -12,6 +12,19 @@ export const sortAndSift = (keepers: SubjectKeeper[]) => {
   if (!fs.existsSync(destinationFolder)) {
     fs.mkdirSync(destinationFolder);
   }
+  // Copy the jpeg files and NEF files to the destination folder
+  keepers.forEach((keeper) => {
+    keeper.imagePackages.forEach((imagePackage) => {
+      const jpegFileName = path.basename(imagePackage.jpegPath);
+      const jpegDestinationPath = path.join(destinationFolder, jpegFileName);
+      fs.copyFileSync(imagePackage.jpegPath, jpegDestinationPath);
+      if (imagePackage.nefPath) {
+        const nefFileName = path.basename(imagePackage.nefPath);
+        const nefDestinationPath = path.join(destinationFolder, nefFileName);
+        fs.copyFileSync(imagePackage.nefPath, nefDestinationPath);
+      }
+    });
+  });
 };
 
 const determineDestinationFolder = (keepers: SubjectKeeper[]) => {

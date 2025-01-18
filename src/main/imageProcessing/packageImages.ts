@@ -1,4 +1,15 @@
 import { ReadingSharpData, ImagePackage, ImageType } from '../types';
+import fs from 'fs';
+
+const getNEFPath = (jpegPath: string) => {
+  const path = jpegPath.split('.');
+  path.pop();
+  if (!fs.existsSync(`${path.join('.')}.NEF`)) {
+    console.warn(`NEF file not found for ${jpegPath}`);
+    return undefined;
+  }
+  return `${path.join('.')}.NEF`;
+};
 
 export const formatImagesToPackages = (unsortedImages: ReadingSharpData[]) => {
   // Map containing all the images in the package
@@ -27,7 +38,7 @@ export const formatImagesToPackages = (unsortedImages: ReadingSharpData[]) => {
       const temp: Partial<ImagePackage> = {
         id: unsortedImage.originalPathName,
         jpegPath: unsortedImage.originalPathName,
-        nefPath: undefined, // @todo
+        nefPath: getNEFPath(unsortedImage.originalPathName),
         thumbnail:
           unsortedImage.type === ImageType.THUMBNAIL
             ? {

@@ -1,6 +1,7 @@
-import { ReadingSharpData, ImagePackage, ImageType } from '../types';
 import fs from 'fs';
+import { ReadingSharpData, ImagePackage, ImageType } from '../types';
 
+// @todo - handle lower case nef file extension
 const getNEFPath = (jpegPath: string) => {
   const path = jpegPath.split('.');
   path.pop();

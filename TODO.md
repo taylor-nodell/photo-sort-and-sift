@@ -8,4 +8,5 @@
 [] Handle Creating new expedition
 [] Close Review modal
 [] delete bigPreview and thumbnail files?
-[]
+[] Send Messages to update frontend on status
+[] Add an undo or way to remove a photo from a keeper

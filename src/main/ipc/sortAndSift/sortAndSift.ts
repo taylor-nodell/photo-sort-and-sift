@@ -1,18 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import { SubjectKeeper } from 'renderer/src/components/context/app-provider';
-
-const keepersPath = 'D:\\Photos\\Keepers\\';
-
-const determineDestinationFolder = (keepers: SubjectKeeper[]) => {
-  // Create a new folder in keepersPath with the name of the first keepers folder path after Photos\\
-  const firstKeeper = keepers[0];
-  const firstImagePackage = firstKeeper.imagePackages[0];
-  const folderPath = firstImagePackage.jpegPath;
-  const folderName = folderPath.split('Photos\\')[1].split('\\')[0];
-  const destinationFolder = path.join(keepersPath, folderName);
-  return destinationFolder;
-};
+import { createDescriptionsFile, determineDestinationFolder } from './utils';
 
 export const sortAndSift = (keepers: SubjectKeeper[]) => {
   // For each keeper, move the keeper's imagePackages to the destination folder
@@ -46,6 +35,7 @@ export const sortAndSift = (keepers: SubjectKeeper[]) => {
     });
   });
 
+  // @todo: find a better way to do this. Probably by doing the grabbing of files from the SD card earlier in the process
   // originalFolder is the path before the last \\ in the first keeper's jpegPath
   //   D:\\Photos\\PhotoSortNSiftTest\\DSC_0376.JPG
   const originalFolder = keepers[0].imagePackages[0].jpegPath
@@ -65,5 +55,8 @@ export const sortAndSift = (keepers: SubjectKeeper[]) => {
     fs.unlinkSync(nefFilePath);
   });
 
-  // @todo - delete the bigPreview and thumbnail files
+  // delete all bigPreview and thumbnail files in the original folder
+  // deleteBigPreviewAndThumbnailFiles(originalFolder);
+
+  createDescriptionsFile(keepers);
 };

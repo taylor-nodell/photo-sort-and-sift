@@ -6,7 +6,7 @@ import { generateSharpImages } from '../imageProcessing/generateSharpImages';
 import { readSharpImages } from '../imageProcessing/readSharpImages';
 import { formatImagesToPackages } from '../imageProcessing/packageImages';
 import { GeneratedFileNameEnding } from '../types';
-import { sortAndSift } from './sortAndSift';
+import { sortAndSift } from './sortAndSift/sortAndSift';
 
 let selectedFolder: string | null = null;
 

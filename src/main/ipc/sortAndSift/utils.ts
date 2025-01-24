@@ -39,7 +39,7 @@ export const createDescriptionsFile = (keepers: SubjectKeeper[]) => {
   const csvFileName = path.join(destinationFolder, 'descriptions.csv');
   const csvStream = fs.createWriteStream(csvFileName);
 
-  // Write the header row
+  // Write the headers row
   csvStream.write('Photo Numbers,Subject,iNat URL\n');
 
   keepers.forEach((keeper) => {

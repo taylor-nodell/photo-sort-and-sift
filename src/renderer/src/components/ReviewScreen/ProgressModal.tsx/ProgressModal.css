@@ -1,0 +1,47 @@
+.progress-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5); /* Dark overlay */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.progress-modal-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  color: black;
+  width: 40%;
+  height: 40%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.progress-bar {
+  position: relative;
+  width: 100%;
+  height: 20px;
+  background-color: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background-color: #0c8310;
+  transition: width 0.3s ease-in-out;
+}
+
+.completion-message {
+  margin-top: 1rem;
+  font-size: 1rem;
+  color: #0c8310;
+  text-align: center;
+}

@@ -1,12 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import './ReviewScreen.css';
 import { useApp } from '../context/app-context';
 import { KeeperLog } from '../KeeperLog/KeeperLog';
+import { ProgressModal } from './ProgressModal.tsx/ProgressModal';
 
 export const ReviewScreen = () => {
   const { subjectKeepers } = useApp();
 
   const submitRef = useRef<HTMLButtonElement>(null);
+  const [showProgressModal, setShowProgressModal] = useState(false);
 
   useEffect(() => {
     if (submitRef.current) {
@@ -26,6 +28,7 @@ export const ReviewScreen = () => {
       <div className="review-modal-content">
         <h1>Review </h1>
         <KeeperLog />
+        {showProgressModal && <ProgressModal />}
         <button
           onClick={() => {
             // Send the subjectKeepers to the main process
@@ -33,6 +36,7 @@ export const ReviewScreen = () => {
               'sort-keepers',
               subjectKeepers
             );
+            setShowProgressModal(true);
           }}
           type="submit"
           ref={submitRef}

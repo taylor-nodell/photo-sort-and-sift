@@ -3,7 +3,10 @@ import fs from 'fs';
 import { SubjectKeeper } from 'renderer/src/components/context/app-provider';
 import { createDescriptionsFile, determineDestinationFolder } from './utils';
 
-export const sortAndSift = (keepers: SubjectKeeper[]) => {
+export const sortAndSift = (
+  event: Electron.IpcMainEvent,
+  keepers: SubjectKeeper[]
+) => {
   // For each keeper, move the keeper's imagePackages to the destination folder
   const destinationFolder = determineDestinationFolder(keepers);
   console.log('destinationFolder: ', destinationFolder);
@@ -11,6 +14,13 @@ export const sortAndSift = (keepers: SubjectKeeper[]) => {
   if (!fs.existsSync(destinationFolder)) {
     fs.mkdirSync(destinationFolder);
   }
+
+  // Initialize progress
+  const totalImages = keepers.reduce(
+    (total, keeper) => total + keeper.imagePackages.length,
+    0
+  );
+  let processedImages = 0;
 
   // @todo - send a message to the renderer to update the UI with the status of the sort and sift process
   // Copy the jpeg files and NEF files to the destination folder
@@ -28,10 +38,14 @@ export const sortAndSift = (keepers: SubjectKeeper[]) => {
       // Delete the moved files from the original folder - imagePackage.jpegPath
       fs.unlinkSync(imagePackage.jpegPath);
 
-      // nefs are deleted in a batch below
-      //   if (imagePackage.nefPath) {
-      //     fs.unlinkSync(imagePackage.nefPath);
-      //   }
+      processedImages += 1;
+      // Send message to the renderer to update the UI with the status of the sort and sift process
+      const progress = Math.round((processedImages / totalImages) * 100);
+
+      event.sender.send('sort-progress', {
+        progress,
+        message: `Processed ${processedImages}/${totalImages} images`,
+      });
     });
   });
 
@@ -59,4 +73,9 @@ export const sortAndSift = (keepers: SubjectKeeper[]) => {
   // deleteBigPreviewAndThumbnailFiles(originalFolder);
 
   createDescriptionsFile(keepers);
+
+  event.sender.send('sort-complete', {
+    message: 'Sort and sift process complete!',
+    destinationFolder,
+  });
 };

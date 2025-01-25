@@ -7,19 +7,13 @@ if (container) {
   root.render(<App />);
 }
 
-// calling IPC exposed from preload script
-window.electron.ipcRenderer.once('ipc-example', (arg) => {
-  // eslint-disable-next-line no-console
-  console.log(arg);
-});
-window.electron.ipcRenderer.sendMessage('ipc-example', ['ping']);
-
+// Listen for messages from the main process
 if (window.electron) {
   window.electron.ipcRenderer.sendMessage('folder-selection', [
     'change-folder',
   ]);
 
-  window.electron.ipcRenderer.on('processedImages', (images) => {
+  window.electron.ipcRenderer.on('processed-images', (images) => {
     console.log('Received images:', images);
   });
 } else {

@@ -56,7 +56,7 @@ const useApp = () => {
           setFolderPath(path);
         }
       });
-      window.electron.ipcRenderer.on('processedImages', (args) => {
+      window.electron.ipcRenderer.on('processed-images', (args) => {
         const castedImages = args as ImagePackage[];
 
         if (args) {
